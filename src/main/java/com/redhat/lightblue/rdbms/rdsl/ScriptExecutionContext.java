@@ -28,6 +28,7 @@ public class ScriptExecutionContext implements VariableAccessor {
 
     private final VariableAccessor scope;
     private final ScriptExecutionContext parent;
+    private Value lastExecutionResult=null;
 
     /**
      * Constructs the top-level execution context
@@ -40,7 +41,7 @@ public class ScriptExecutionContext implements VariableAccessor {
      * Constructs a nested scope
      */
     public ScriptExecutionContext(ScriptExecutionContext parentScope) {
-        scope=new DelegatingVariableAccessor();
+        scope=new TopLevelVariableAccessor();
         this.parent=parentScope;       
     }
 
@@ -48,29 +49,53 @@ public class ScriptExecutionContext implements VariableAccessor {
      * Lookup variable in the current scope. Start with this scope, move up
      */
     @Override
-    public LValue getValue(Path p) {
+    public Value getVarValue(Path var) {
         try {
-            return scope.getValue(p);
+            return scope.getVarValue(var);
         } catch (Error x) {
-            return parent.getValue(p);
+            return parent.getVarValue(var);
         }
     }
+
+    /**
+     * Lookup variable in the current scope. Start with this scope, move up
+     */
+    @Override
+    public ValueType getVarType(Path var) {
+        try {
+            return scope.getVarType(var);
+        } catch (Error x) {
+            return parent.getVarType(var);
+        }
+    }
+
 
     /**
      * If the variable is single-=level, defines a temp variable at this scope. Otherwise,
      * resolves and assigns the variable.
      */
     @Override
-    public boolean setValue(Path p,Value value) {
-        boolean ret;
+    public void setVarValue(Path p,Value value) {
         if(p.numSegments()==1) {
-            ret=scope.setValue(p,value);
+            scope.setVarValue(p,value);
         } else {
             if(parent!=null)
-                ret=parent.setValue(p,value);
+                parent.setVarValue(p,value);
             else
-                ret=scope.setValue(p,value);
+                scope.setVarValue(p,value);
         }
-        return ret;
     }
+
+    public ScriptExecutionContext newContext() {
+        return new ScriptExecutionContext(this);
+    }
+
+    public Value getLastExecutionResult() {
+        return lastExecutionResult;
+    }
+
+    public void setLastExecutionResult(Value result) {
+        lastExecutionResult=result;
+    }
+
 }

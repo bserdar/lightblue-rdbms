@@ -26,8 +26,18 @@ import java.util.List;
 public class Script implements ScriptOperation {
     private List<ScriptOperation> operations;
 
+    @Override
     public String getName() {
         return null;
+    }
+
+    @Override
+    public void execute(ScriptExecutionContext ctx) {
+        ScriptExecutionContext newCtx=ctx.newContext();
+        for(ScriptOperation op:operations) {
+            op.execute(newCtx);
+        }
+        ctx.setLastExecutionResult(newCtx.getLastExecutionResult());
     }
 
     public List<ScriptOperation> getOperations() {

@@ -145,6 +145,10 @@
             <artifactId>lightblue-core-query-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.redhat.lightblue</groupId>
+            <artifactId>lightblue-core-metadata</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>

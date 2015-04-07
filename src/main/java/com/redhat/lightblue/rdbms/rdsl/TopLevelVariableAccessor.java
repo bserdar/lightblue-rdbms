@@ -65,7 +65,7 @@ public class TopLevelVariableAccessor implements VariableAccessor {
             String name=variable.head(0);
             Object head=children.get(name);
             if(head instanceof VariableAccessor) {
-                ret=((VariableAccessor)ret).getVarType(variable.suffix(-1));
+                ret=((VariableAccessor)head).getVarType(variable.suffix(-1));
             } else if(head instanceof Value) {
                 ret=((Value)head).getType();
             } else {

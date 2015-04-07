@@ -32,7 +32,7 @@ public class JsonArrayAdapter implements ListValue {
     private final ArrayNode node;
     private final ArrayField nodeMd;
 
-    private class _Iterator<Value> implements Iterator {
+    private class _Iterator implements Iterator<Value> {
 
         private final Iterator<JsonNode> itr;
 
@@ -40,10 +40,16 @@ public class JsonArrayAdapter implements ListValue {
             this.itr=itr;
         }
 
+        @Override
         public boolean hasNext() {
             return itr.hasNext();
         }
 
+        @Override
+        public void remove() {
+        }
+
+        @Override
         public Value next() {
             JsonNode elementNode=itr.next();
             return DocumentFieldAccessor.getValueForField(nodeMd==null?null:nodeMd.getElement(),elementNode);
@@ -67,8 +73,8 @@ public class JsonArrayAdapter implements ListValue {
     }
 
     @Override
-    public Iterator<Value> getIterator() {
-        return new _Iterator<Value>(node.elements());
+    public Iterator<Value> getValues() {
+        return new _Iterator(node.elements());
     }
   
 }

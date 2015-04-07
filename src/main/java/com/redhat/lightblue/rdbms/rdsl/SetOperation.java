@@ -18,8 +18,10 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
+import com.redhat.lightblue.util.Path;
+
 /**
- * Set the value of lvar using current value of rvar
+ * Set the value of lvar using current value of rvar, or the result of the script, or the value
  */
 public class SetOperation implements ScriptOperation {
 
@@ -32,6 +34,11 @@ public class SetOperation implements ScriptOperation {
     private Path rVariable;
     private Value rValue;
 
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
     public Path getLVariable() {
         return lVariable;
@@ -61,17 +68,18 @@ public class SetOperation implements ScriptOperation {
         return rValue;
     }
 
-    public vois setRValue(Value v) {
+    public void setRValue(Value v) {
         rValue=v;
     }
 
     @Override
-    public void execute(ScriptOperationContext ctx) {
+    public void execute(ScriptExecutionContext ctx) {
         Value result=null;
         // Depending on which r-value is non-null, execute
-        if(rscript!=null) {
-            ScriptOperationContext newCtx=ctx.newContext();
-            result=newCtx.execute(script);
+        if(rScript!=null) {
+            ScriptExecutionContext newCtx=ctx.newContext();
+            rScript.execute(newCtx);
+            result=newCtx.getLastExecutionResult();
         } else if(rVariable!=null) {
             result=ctx.getVarValue(rVariable);
         } else if(rValue!=null) {

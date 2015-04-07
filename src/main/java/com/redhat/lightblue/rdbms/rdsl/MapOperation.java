@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
+import com.redhat.lightblue.util.Path;
+
 public class MapOperation implements ScriptOperation {
 
     public static final String NAME="$map";

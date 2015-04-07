@@ -24,6 +24,8 @@ package com.redhat.lightblue.rdbms.rdsl;
  */
 public class Value {
 
+    public static final Value NULL_VALUE=new Value(ValueType.primitive,null);
+
     private final Object value;
     private final ValueType type;
 

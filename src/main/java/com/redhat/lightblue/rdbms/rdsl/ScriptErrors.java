@@ -26,9 +26,11 @@ public final class ScriptErrors {
     public static final String ERR_INVALID_VARIABLE="rdbms:script:invalid-variable";
     public static final String ERR_MULTILEVEL_VARIABLE_NOT_ALLOWED="rdbms:script:multilevel-variable-not-allowed";
     public static final String ERR_NO_COLUMN="rdbms:script:no-column";
-    public static final String ERR_CANNOT_ASSIGN_TABLE_VALUE="rdbms:script:cannot-assign-table-value";
-    public static final String ERR_CANNOT_INTERPRET_AS_VALUE="rdbms:script:cannot-interpret-variable-as-value";
-
+    public static final String ERR_INVALID_REFERENCE_TO_TABLE="rdbms:script:invalid-reference-to-table";
+    public static final String ERR_INVALID_ASSIGNMENT="rdbms:script:invalid-assignment";
+    public static final String ERR_INCOMPATIBLE_ARRAY_ELEMENT="rdbms:script:incompatible-array-element";
+    public static final String ERR_INCOMPATIBLE_ASSIGNMENT="rdbms:script:incompatible-assignment";
+    public static final String ERR_INCONSISTENT_DATA="rdbms:script:inconsistent-data";
 
     private ScriptErrors() {}
 }

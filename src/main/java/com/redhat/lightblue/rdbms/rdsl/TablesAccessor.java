@@ -47,9 +47,9 @@ public class TablesAccessor implements VariableAccessor {
             if(ref instanceof Column) {
                 return new Value(ValueType.primitive,((Column)ref).getValue());
             } else
-                throw Error.get(ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
+                throw Error.get(ScriptErrors.ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
         } else
-            throw Error.get(ERR_UNKNOWN_COLUMN,var.toString());
+            throw Error.get(ScriptErrors.ERR_NO_COLUMN,var.toString());
     }
 
     @Override
@@ -59,9 +59,9 @@ public class TablesAccessor implements VariableAccessor {
             if(ref instanceof Column) {
                 return ValueType.primitive;
             } else
-                throw Error.get(ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
+                throw Error.get(ScriptErrors.ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
         } else
-            throw Error.get(ERR_UNKNOWN_COLUMN,var.toString());
+            throw Error.get(ScriptErrors.ERR_NO_COLUMN,var.toString());
     }
 
     @Override
@@ -70,15 +70,15 @@ public class TablesAccessor implements VariableAccessor {
         if(ref!=null) {
             if(ref instanceof Column) {
                 if(value.getType() == ValueType.lob) {
-                    ((Column)ref).setValue(value.getLobValue());
+                    ((Column)ref).setValue(value.getValue());
                 } else if(value.getType() == ValueType.primitive) {
-                    ((Column)ref).setValue(value.getPrimitiveValue());
+                    ((Column)ref).setValue(value.getValue());
                 } else
-                    throw Error.get(ERR_INVALID_ASSIGNMENT,var.toString());
+                    throw Error.get(ScriptErrors.ERR_INVALID_ASSIGNMENT,var.toString());
             } else
-                throw Error.get(ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
+                throw Error.get(ScriptErrors.ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
         } else
-            throw Error.get(ERR_UNKNOWN_COLUMN,var.toString());
+            throw Error.get(ScriptErrors.ERR_NO_COLUMN,var.toString());
     }
 
     /**
