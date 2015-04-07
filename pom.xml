@@ -28,7 +28,7 @@
     <groupId>com.redhat.lightblue.rdbms</groupId>
     <artifactId>lightblue-rdbms-pom</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>lightblue-rdbms: ${project.groupId}|${project.artifactId}</name>
     <licenses>
         <license>
@@ -55,17 +55,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.10.8</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>16.0.1</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -107,11 +96,6 @@
                 <groupId>org.skyscreamer</groupId>
                 <artifactId>jsonassert</artifactId>
                 <version>1.2.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.hsqldb</groupId>
@@ -197,19 +181,8 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <modules>
-        <module>crud</module>
-        <module>metadata</module>
-        <module>hystrix</module>
-        <module>config</module>
-        <module>common</module>
-        <module>tools</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
