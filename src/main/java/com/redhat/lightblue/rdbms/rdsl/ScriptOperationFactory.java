@@ -18,32 +18,26 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
-import com.redhat.lightblue.util.Path;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class MapOperation implements ScriptOperation {
+/**
+ * Interface that generates script operation instances from Json
+ * nodes. A script operation factory can generate multiple operations.
+ */
+public interface ScriptOperationFactory {
 
-    public static final String NAME="$map";
+    /**
+     * Returns the names of the operations this factory can generate
+     */
+    String[] operationNames();
 
-    private Path source;
-    private Path dest;
-
-    public MapOperation() {
-    }
-
-    public MapOperation(Path source,Path dest) {
-        this.source=source;
-        this.dest=dest;
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public Value execute(ScriptExecutionContext ctx) {
-        Value ret=Value.NULL_VALUE;
-        return ret;
-    }
-    
+    /**
+     * Returns a script operation instance using the given Json node
+     * operation configuration. The operationNode is the object node
+     * of the form:
+     * <pre>
+     *   { "operationName" : { args } }
+     * </pre>
+     */
+    ScriptOperation getOperation(OperationRegistry reg,ObjectNode operationNode);
 }

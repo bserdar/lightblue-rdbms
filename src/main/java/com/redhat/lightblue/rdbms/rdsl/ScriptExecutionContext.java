@@ -86,14 +86,23 @@ public class ScriptExecutionContext implements VariableAccessor {
         }
     }
 
+    /**
+     * Creates a nested execution context for scripts contained within other scripts
+     */
     public ScriptExecutionContext newContext() {
         return new ScriptExecutionContext(this);
     }
 
+    /**
+     * Value of the last execution
+     */
     public Value getLastExecutionResult() {
         return lastExecutionResult;
     }
 
+    /**
+     * Value of the last execution
+     */
     public void setLastExecutionResult(Value result) {
         lastExecutionResult=result;
     }

@@ -19,6 +19,14 @@
 package com.redhat.lightblue.rdbms.rdsl;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.util.Error;
 
 /**
  * A script is a list of operations, and it is an operation as well.
@@ -32,12 +40,14 @@ public class Script implements ScriptOperation {
     }
 
     @Override
-    public void execute(ScriptExecutionContext ctx) {
-        ScriptExecutionContext newCtx=ctx.newContext();
+    public Value execute(ScriptExecutionContext ctx) {
+        Value last=Value.NULL_VALUE;
         for(ScriptOperation op:operations) {
-            op.execute(newCtx);
+            last=op.execute(ctx);
+            ctx.setLastExecutionResult(last);
         }
-        ctx.setLastExecutionResult(newCtx.getLastExecutionResult());
+        ctx.setLastExecutionResult(last);
+        return last;
     }
 
     public List<ScriptOperation> getOperations() {
@@ -46,5 +56,27 @@ public class Script implements ScriptOperation {
 
     public void setOperations(List<ScriptOperation> s) {
         this.operations=s;
+    }
+
+    public static Script parse(OperationRegistry reg,JsonNode node) {
+        List<ScriptOperation> list=new ArrayList<>();
+        if(node instanceof ArrayNode) {
+            for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
+                JsonNode el=itr.next();
+                if(el instanceof ArrayNode) {
+                    list.add(parse(reg,el));
+                } else if(el instanceof ObjectNode) {
+                    list.add(reg.get( (ObjectNode)el ));
+                } else {
+                    throw Error.get(ScriptErrors.ERR_MALFORMED_SCRIPT,el.toString());
+                }
+            }
+        } else if(node instanceof ObjectNode) {
+            list.add(reg.get((ObjectNode)node));
+        } else
+            throw Error.get(ScriptErrors.ERR_MALFORMED_SCRIPT,node.toString());
+        Script ret=new Script();
+        ret.setOperations(list);
+        return ret;
     }
 }

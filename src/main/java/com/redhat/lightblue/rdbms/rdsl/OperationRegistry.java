@@ -18,7 +18,39 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
-import com.redhat.lightblue.util.DefaultRegistry;
+import java.util.Map;
+import java.util.HashMap;
 
-public class OperationRegistry extends DefaultRegistry<String,ScriptOperation> {
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.util.Error;
+
+public class OperationRegistry {
+
+    private final Map<String,ScriptOperationFactory> map=new HashMap<>();
+
+    /**
+     * Registers the given script operation factory
+     */
+    public void add(ScriptOperationFactory f) {
+        for(String name:f.operationNames())
+            map.put(name,f);
+    }
+
+    /**
+     * Configures and returns a script operation using the Json node
+     */
+    public ScriptOperation get(ObjectNode node) {
+        if(node.size()==1) {
+            String name=node.fieldNames().next();
+            ScriptOperationFactory f=map.get(name);
+            if(f!=null) {
+                return f.getOperation(this,node);
+            } else {
+                throw Error.get(ScriptErrors.ERR_UNKNOWN_OPERATION,name);
+            } 
+        } else {
+            throw Error.get(ScriptErrors.ERR_MALFORMED_OPERATION,node.toString());
+        }
+    }
 }

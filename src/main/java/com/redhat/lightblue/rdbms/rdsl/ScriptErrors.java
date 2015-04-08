@@ -31,6 +31,10 @@ public final class ScriptErrors {
     public static final String ERR_INCOMPATIBLE_ARRAY_ELEMENT="rdbms:script:incompatible-array-element";
     public static final String ERR_INCOMPATIBLE_ASSIGNMENT="rdbms:script:incompatible-assignment";
     public static final String ERR_INCONSISTENT_DATA="rdbms:script:inconsistent-data";
+    public static final String ERR_UNKNOWN_OPERATION="rdbms:script:unknown-operation";
+    public static final String ERR_MALFORMED_OPERATION="rdbms:script:malformed-operation";
+    public static final String ERR_MALFORMED_SCRIPT="rdbms:script:malformed-script";
+    public static final String ERR_MISSING_ARG="rdbms:script:missing-arg";
 
     private ScriptErrors() {}
 }

@@ -26,7 +26,7 @@ public interface ScriptOperation {
     String getName();
 
     /**
-     * Executes the operation
+     * Executes the operation, returns the value of operation
      */
-    void execute(ScriptExecutionContext ctx);
+    Value execute(ScriptExecutionContext ctx);
 }

@@ -87,13 +87,7 @@ public class DocumentFieldAccessor implements VariableAccessor {
                 }
             } else {
                 // Node is not an array or object, but there is no nodeMd. This is a primitive type
-                if(node.isNumber()) {
-                    return new Value(ValueType.primitive,node.numberValue());
-                } else if(node.isBoolean()) {
-                    return new Value(ValueType.primitive,node.asBoolean());
-                } else {
-                    return new Value(ValueType.primitive,node.asText());
-                }
+                return Value.toValue(node);
             }
         } else {
             // node is null

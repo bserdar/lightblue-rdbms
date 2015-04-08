@@ -18,6 +18,10 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 /**
  * Wrapper for values within a script. Contains a valueType, and the
  * actual value with that type
@@ -86,4 +90,22 @@ public class Value {
         return type+"("+value+")";
     }
 
+    /**
+     * Returns a value object representing the json node
+     */
+    public static Value toValue(JsonNode node) {
+        if(node instanceof ObjectNode) {
+            return new Value(new JsonObjectAdapter( (ObjectNode)node, null ));
+        } else if(node instanceof ArrayNode) {
+            return new Value(new JsonArrayAdapter( (ArrayNode)node, null ) );
+        } else {
+            if(node.isNumber()) {
+                return new Value(ValueType.primitive,node.numberValue());
+            } else if(node.isBoolean()) {
+                return new Value(ValueType.primitive,node.booleanValue());
+            } else {
+                return new Value(ValueType.primitive,node.asText());
+            }
+        }
+    }
 }

@@ -18,14 +18,19 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Set the value of lvar using current value of rvar, or the result of the script, or the value
  */
-public class SetOperation implements ScriptOperation {
+public class SetOperation implements ScriptOperation, ScriptOperationFactory {
 
     public static final String NAME="$set";
+    public static final String NAMES[]={NAME};
     
     private Path lVariable;
 
@@ -73,19 +78,51 @@ public class SetOperation implements ScriptOperation {
     }
 
     @Override
-    public void execute(ScriptExecutionContext ctx) {
+    public Value execute(ScriptExecutionContext ctx) {
         Value result=null;
         // Depending on which r-value is non-null, execute
         if(rScript!=null) {
             ScriptExecutionContext newCtx=ctx.newContext();
-            rScript.execute(newCtx);
-            result=newCtx.getLastExecutionResult();
+            result=rScript.execute(newCtx);
         } else if(rVariable!=null) {
             result=ctx.getVarValue(rVariable);
         } else if(rValue!=null) {
             result=rValue;
         }
         ctx.setVarValue(lVariable,result);
+        return result;
     }
     
+    @Override
+    public String[] operationNames() {
+        return NAMES;
+    }
+
+    @Override
+    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+        SetOperation newOp=new SetOperation();
+        ObjectNode configNode=(ObjectNode)node.get(NAME);
+        JsonNode x=configNode.get("dest");
+        if(x!=null)
+            newOp.setLVariable(new Path(x.asText()));
+        else
+            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
+        x=configNode.get("var");
+        if(x!=null) {
+            newOp.setRVariable(new Path(x.asText()));
+        } else {
+            x=configNode.get("value");
+            if(x!=null) {
+                newOp.setRValue(Value.toValue(x));
+            } else {
+                x=configNode.get("valueOf");
+                if(x!=null) {
+                    rScript=Script.parse(reg,x);
+                } else {
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var/value/valueOf");
+                }
+            }
+        }
+        return newOp;
+    }
 }
