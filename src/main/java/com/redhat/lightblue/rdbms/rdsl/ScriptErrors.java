@@ -35,6 +35,7 @@ public final class ScriptErrors {
     public static final String ERR_MALFORMED_OPERATION="rdbms:script:malformed-operation";
     public static final String ERR_MALFORMED_SCRIPT="rdbms:script:malformed-script";
     public static final String ERR_MISSING_ARG="rdbms:script:missing-arg";
+    public static final String ERR_INVALID_DEREFERENCE="rdbms:script:invalid-dereference";
 
     private ScriptErrors() {}
 }

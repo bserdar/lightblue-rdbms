@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.ArrayField;
 
 /**
- * ListValue adapter for Json ArrayNode nodes
+ * ListValue adapter for Json ArrayNode nodes. The underlying object is read-only
  */
 public class JsonArrayAdapter implements ListValue {
     private final ArrayNode node;

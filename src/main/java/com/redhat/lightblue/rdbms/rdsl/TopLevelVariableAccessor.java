@@ -84,14 +84,17 @@ public class TopLevelVariableAccessor implements VariableAccessor {
             Object child=children.get(name);
             if(child instanceof VariableAccessor) {
                 ((VariableAccessor)child).setVarValue(variable.suffix(-1),value);
-            } else if(child==null&&!children.containsKey(name)) {
-                // Creating a variable. Path must have only one level
-                if(variable.numSegments()>1)
-                    throw Error.get(ScriptErrors.ERR_MULTILEVEL_VARIABLE_NOT_ALLOWED,variable.toString());
-                children.put(name,value);
             } else {
-                children.put(name,value);
-            }
+                // New temp variable. At initial creation, variable must have only 1 segment
+                if(variable.numSegments()>1)
+                    throw Error.get(ScriptErrors.ERR_INVALID_DEREFERENCE,variable.toString());
+                // For list and map values, we create a deep copy
+                if(value.getType()==ValueType.map)
+                    value=new Value(new TempVarMapValueAdapter(value.getMapValue()));
+                else if(value.getType()==ValueType.list)
+                    value=new Value(new TempVarListValueAdapter(value.getListValue()));
+                children.put(name,new TempVariableAccessor(value));
+            } 
         } else
             throw Error.get(ScriptErrors.ERR_INVALID_VARIABLE,"<empty>");
     }

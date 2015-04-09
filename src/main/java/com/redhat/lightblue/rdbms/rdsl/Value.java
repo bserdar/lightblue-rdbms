@@ -85,6 +85,14 @@ public class Value {
         return (MapValue)value;
     }
 
+    public Value deepCopy() {
+        switch(type) {
+        case list: return new Value(ValueType.list,value==null?null:new TempVarListValueAdapter((ListValue)value));
+        case map: return new Value(ValueType.map,value==null?null:new TempVarMapValueAdapter((MapValue)value));
+        default: return new Value(type,value);
+        }
+    }
+
     @Override
     public String toString() {
         return type+"("+value+")";

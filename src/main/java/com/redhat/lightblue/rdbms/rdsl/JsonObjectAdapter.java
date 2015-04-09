@@ -27,7 +27,7 @@ import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
 /**
- * MapValue adapter for Json ObjectNode nodes
+ * MapValue adapter for Json ObjectNode nodes. The underlying object is read-only
  */
 public class JsonObjectAdapter implements MapValue {
     private final ObjectNode node;

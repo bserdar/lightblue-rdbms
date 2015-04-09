@@ -18,17 +18,21 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
-import com.redhat.lightblue.util.Path;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class MapOperation implements ScriptOperation {
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
+
+public class MapOperation implements ScriptOperation, ScriptOperationFactory {
 
     public static final String NAME="$map";
+    public static final String NAMES[]={NAME};
 
     private Path source;
     private Path dest;
-
-    public MapOperation() {
-    }
+    
+    public MapOperation() {}
 
     public MapOperation(Path source,Path dest) {
         this.source=source;
@@ -46,4 +50,27 @@ public class MapOperation implements ScriptOperation {
         return ret;
     }
     
+    @Override
+    public String[] operationNames() {
+        return NAMES;
+    }
+
+    @Override
+    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+        MapOperation newOp=new MapOperation();
+        ObjectNode args=(ObjectNode)node.get(NAME);
+        JsonNode x=args.get("dest");
+        if(x!=null) {
+            newOp.dest=new Path(x.asText());
+        } else {
+            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
+        }
+        x=args.get("source");
+        if(x!=null) {
+            newOp.source=new Path(x.asText());
+        } else {
+            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"source");
+        }
+        return newOp;
+    }
 }
