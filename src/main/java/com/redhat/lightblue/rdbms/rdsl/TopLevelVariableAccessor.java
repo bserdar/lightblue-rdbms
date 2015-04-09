@@ -47,7 +47,7 @@ public class TopLevelVariableAccessor implements VariableAccessor {
             String name=variable.head(0);
             Object head=children.get(name);
             if(head instanceof VariableAccessor) {
-                ret=((VariableAccessor)ret).getVarValue(variable.suffix(-1));
+                ret=((VariableAccessor)head).getVarValue(variable.suffix(-1));
             } else if(head instanceof Value) {
                 ret=(Value)head;
             } else {
@@ -104,5 +104,14 @@ public class TopLevelVariableAccessor implements VariableAccessor {
      */
     public void set(String name,VariableAccessor accessor) {
         children.put(name,accessor);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder bld=new StringBuilder();
+        for(Map.Entry<String,Object> entry:children.entrySet()) {
+            bld.append(entry.getKey()).append(':').append(entry.getValue().toString()).append('\n');
+        }
+        return bld.toString();
     }
 }

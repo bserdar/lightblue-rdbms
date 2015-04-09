@@ -67,4 +67,9 @@ public class TempVariableAccessor implements VariableAccessor {
                 throw Error.get(ScriptErrors.ERR_INVALID_DEREFERENCE,var.toString());
         }
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

@@ -110,6 +110,8 @@ public class DocumentFieldAccessor implements VariableAccessor {
 
     @Override
     public Value getVarValue(Path var) {
+        if(var.isEmpty())
+            return new Value(new JsonObjectAdapter((ObjectNode)doc.getRoot(),md.getEntitySchema().getFieldTreeRoot()));
         FieldTreeNode nodeMd=md.resolve(var);
         JsonNode node=doc.get(var);
         return getValueForField(nodeMd,node);
@@ -117,6 +119,8 @@ public class DocumentFieldAccessor implements VariableAccessor {
 
     @Override
     public ValueType getVarType(Path var) {
+        if(var.isEmpty())
+            return ValueType.map;
         FieldTreeNode nodeMd=md.resolve(var);
         if(nodeMd instanceof ArrayField) {
             return ValueType.list;
@@ -247,6 +251,11 @@ public class DocumentFieldAccessor implements VariableAccessor {
                 setVarValue(fieldName,mv.getValue(name),fieldMd);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return doc.toString();
     }
 }
 

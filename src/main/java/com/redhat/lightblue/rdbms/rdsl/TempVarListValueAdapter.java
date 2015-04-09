@@ -163,4 +163,9 @@ public class TempVarListValueAdapter implements ListValue, TempVarResolver {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return list.toString();
+    }
 }

@@ -20,6 +20,9 @@ package com.redhat.lightblue.rdbms.rdsl;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
@@ -30,6 +33,8 @@ import com.redhat.lightblue.rdbms.tables.Column;
  * Provides access to the map of tables and their columns as variables
  */
 public class TablesAccessor implements VariableAccessor {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(TablesAccessor.class);
     
     private final Map<String,Table> tables;
 
@@ -42,7 +47,9 @@ public class TablesAccessor implements VariableAccessor {
 
     @Override
     public Value getVarValue(Path var) {
+        LOGGER.debug("get {}",var);
         Object ref=resolve(var);
+        LOGGER.debug("resolved: {}",ref);
         if(ref!=null) {
             if(ref instanceof Column) {
                 return new Value(ValueType.primitive,((Column)ref).getValue());
@@ -54,7 +61,9 @@ public class TablesAccessor implements VariableAccessor {
 
     @Override
     public ValueType getVarType(Path var) {
+        LOGGER.debug("get {}",var);
         Object ref=resolve(var);
+        LOGGER.debug("resolved: {}",ref);
         if(ref!=null) {
             if(ref instanceof Column) {
                 return ValueType.primitive;
@@ -66,7 +75,9 @@ public class TablesAccessor implements VariableAccessor {
 
     @Override
     public void setVarValue(Path var,Value value) {
+        LOGGER.debug("set {}",var);
         Object ref=resolve(var);
+        LOGGER.debug("resolved: {}",ref);
         if(ref!=null) {
             if(ref instanceof Column) {
                 if(value.getType() == ValueType.lob) {
@@ -85,25 +96,40 @@ public class TablesAccessor implements VariableAccessor {
      * Returns a Table, Column, or null if the variable cannot be resolved
      */
     private Object resolve(Path var) {
+        LOGGER.debug("resolving {}",var);
         // If var has one segment, it can only be pointing to a table
         Object ret=null;
         if(var.numSegments()==1) {
-            ret=tables.get(var.head(0));
+            ret=tables.get(var.head(0).toUpperCase());
         } else if(var.numSegments()>1) {
             // var can be pointing to a table, or the n-1 prefix is a table, and the last
             // segment is a column
-            Table t=tables.get(var.toString());
+            LOGGER.debug("Getting table {}",var);
+            Table t=tables.get(var.toString().toUpperCase());
             if(t!=null)
                 ret=t;
             else {
-                t=tables.get(var.prefix(-1).toString());
+                Path pfix=var.prefix(-1);
+                LOGGER.debug("Getting table {}",pfix);
+                t=tables.get(pfix.toString().toUpperCase());
                 if(t!=null) {
+                    LOGGER.debug("Getting column {}",var.tail(0));
                     ret=t.getColumn(var.tail(0));
                     if(ret==null)
                         throw Error.get(ScriptErrors.ERR_INVALID_VARIABLE,var.toString());
                 }
             }
-        }
+        } else
+            throw Error.get(ScriptErrors.ERR_INVALID_VARIABLE,var.toString());
         return ret;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder bld=new StringBuilder();
+        for(Map.Entry<String,Table> entry:tables.entrySet()) {
+            bld.append(entry.getValue().toString()).append('\n');
+        }
+        return bld.toString();
     }
 }

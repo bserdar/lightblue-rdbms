@@ -143,4 +143,9 @@ public class TempVarMapValueAdapter implements MapValue, TempVarResolver {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
 }

@@ -76,5 +76,10 @@ public class JsonArrayAdapter implements ListValue {
     public Iterator<Value> getValues() {
         return new _Iterator(node.elements());
     }
+
+    @Override
+    public String toString() {
+        return node.toString();
+    }
   
 }

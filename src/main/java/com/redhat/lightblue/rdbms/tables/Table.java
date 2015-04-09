@@ -99,4 +99,23 @@ public class Table {
             c.setValue(null);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder bld=new StringBuilder();
+        bld.append(name).append("(");
+        boolean first=true;
+        for(Column col:columns.values()) {
+            if(first)
+                first=false;
+            else
+                bld.append(',');
+            bld.append(col.toString());
+        }
+        bld.append(")");
+        if(primaryKey!=null) 
+            bld.append(" PK= ").append(primaryKey.toString());
+        if(!foreignKeys.isEmpty())
+            bld.append(" FK= ").append(foreignKeys.toString());
+        return bld.toString();
+    }
 }

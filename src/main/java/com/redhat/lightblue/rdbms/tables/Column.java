@@ -49,6 +49,7 @@ public class Column {
         return table;
     }
 
+    @Override
     public String toString() {
         return table.getName()+"."+name;
     }

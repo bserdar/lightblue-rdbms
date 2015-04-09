@@ -18,13 +18,29 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Error;
+
+import com.redhat.lightblue.metadata.EntityMetadata;
+
+import com.redhat.lightblue.rdbms.tables.Table;
 
 /**
  * Contains all the variables and database information required to
  * execute scripts
  */
 public class ScriptExecutionContext implements VariableAccessor {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(ScriptExecutionContext.class);
 
     private final VariableAccessor scope;
     private final ScriptExecutionContext parent;
@@ -50,11 +66,23 @@ public class ScriptExecutionContext implements VariableAccessor {
      */
     @Override
     public Value getVarValue(Path var) {
+        Error.push(var.toString());
+        LOGGER.debug("get {} enter",var);
+        Value ret;
         try {
-            return scope.getVarValue(var);
-        } catch (Error x) {
-            return parent.getVarValue(var);
+            try {
+                ret=scope.getVarValue(var);
+            } catch (Error x) {
+                if(parent!=null)
+                    ret=parent.getVarValue(var);
+                else
+                    throw x;
+            }
+        } finally {
+            Error.pop();
         }
+        LOGGER.debug("get {}:{}",var,ret);
+        return ret;
     }
 
     /**
@@ -62,28 +90,46 @@ public class ScriptExecutionContext implements VariableAccessor {
      */
     @Override
     public ValueType getVarType(Path var) {
+        Error.push(var.toString());
+        LOGGER.debug("getType {} enter",var);
+        ValueType ret;
         try {
-            return scope.getVarType(var);
-        } catch (Error x) {
-            return parent.getVarType(var);
+            try {
+                ret=scope.getVarType(var);
+            } catch (Error x) {
+                if(parent!=null)
+                    ret=parent.getVarType(var);
+                else
+                    throw x;
+            }
+        } finally {
+            Error.pop();
         }
+        LOGGER.debug("getType {}:{}",var,ret);
+        return ret;
     }
 
 
     /**
-     * If the variable is single-=level, defines a temp variable at this scope. Otherwise,
-     * resolves and assigns the variable.
+     * defines a new variable, or modifies an existing one
      */
     @Override
     public void setVarValue(Path p,Value value) {
-        if(p.numSegments()==1) {
-            scope.setVarValue(p,value);
-        } else {
-            if(parent!=null)
-                parent.setVarValue(p,value);
-            else
+        Error.push(p.toString());
+        LOGGER.debug("set {}:{} enter",p,value);
+        try {
+            if(p.numSegments()==1) {
                 scope.setVarValue(p,value);
+            } else {
+                if(parent!=null)
+                    parent.setVarValue(p,value);
+                else
+                    scope.setVarValue(p,value);
+            }
+        } finally {
+            Error.pop();
         }
+        LOGGER.debug("set {} return",p);
     }
 
     /**
@@ -107,4 +153,55 @@ public class ScriptExecutionContext implements VariableAccessor {
         lastExecutionResult=result;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder b=new StringBuilder();
+        if(parent!=null)
+            b.append(parent.toString());
+        b.append("\n----\n");
+        b.append(scope.toString());
+        return b.toString();
+    }
+
+
+    /**
+     * Creates an execution context for insertion. Defines $tables and $document variables.
+     */
+    public static ScriptExecutionContext getInstanceForInsertion(Map<String,Table> tables,
+                                                                 JsonDoc document,
+                                                                 EntityMetadata md) {
+        ScriptExecutionContext ctx=new ScriptExecutionContext();
+        ((TopLevelVariableAccessor)ctx.scope).set("$tables",new TablesAccessor(tables));
+        ((TopLevelVariableAccessor)ctx.scope).set("$document",new DocumentFieldAccessor(md,document));
+        return ctx;
+    }
+
+    /**
+     * Creates an execution context for update. Defines $tables, $document, and $olddocument variables.
+     */
+    public static ScriptExecutionContext getInstanceForUpdate(Map<String,Table> tables,
+                                                              JsonDoc oldDoc,
+                                                              JsonDoc newDoc,
+                                                              EntityMetadata md) {
+        ScriptExecutionContext ctx=new ScriptExecutionContext();
+        ((TopLevelVariableAccessor)ctx.scope).set("$tables",new TablesAccessor(tables));
+        ((TopLevelVariableAccessor)ctx.scope).set("$document",new DocumentFieldAccessor(md,newDoc));
+        ((TopLevelVariableAccessor)ctx.scope).set("$olddocument",new DocumentFieldAccessor(md,oldDoc));
+        return ctx;
+    }
+
+    /**
+     * Creates an execution context for deletion. Defines $tables and $docId variables.
+     */
+    public static ScriptExecutionContext getInstanceForDeletion(Map<String,Table> tables,
+                                                                JsonNode docId) {
+        ScriptExecutionContext ctx=new ScriptExecutionContext();
+        ((TopLevelVariableAccessor)ctx.scope).set("$tables",new TablesAccessor(tables));
+        if(docId instanceof ObjectNode) {
+            ((TopLevelVariableAccessor)ctx.scope).set("$docId",new TempVariableAccessor(new Value(new TempVarMapValueAdapter(new JsonObjectAdapter( (ObjectNode)docId,null )))));
+        } else {
+            ((TopLevelVariableAccessor)ctx.scope).set("$docId",new TempVariableAccessor(Value.toValue(docId)));
+        }
+        return ctx;
+    }                                                         
 }

@@ -66,4 +66,9 @@ public class ForeignKey {
     public boolean isNotNull() {
         return notNull;
     }
+
+    @Override
+    public String toString() {
+        return "("+foreignTable.getName()+":"+sourceColumns+" notNull:"+notNull+")";
+    }
 }

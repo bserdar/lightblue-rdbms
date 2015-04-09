@@ -26,12 +26,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
+import com.redhat.lightblue.util.Path;
+
 /**
  * MapValue adapter for Json ObjectNode nodes. The underlying object is read-only
  */
 public class JsonObjectAdapter implements MapValue {
     private final ObjectNode node;
-    private final ObjectField nodeMd;
+    private final FieldTreeNode nodeMd;
     
     /**
      * Constructs a MapValue for the object node, and the field
@@ -39,7 +41,7 @@ public class JsonObjectAdapter implements MapValue {
      * optional, but should be non-null for all Json objects obtained
      * from documents.
      */    
-    public JsonObjectAdapter(ObjectNode node,ObjectField fieldMd) {
+    public JsonObjectAdapter(ObjectNode node,FieldTreeNode fieldMd) {
         this.node=node;
         this.nodeMd=fieldMd;
     }
@@ -58,11 +60,16 @@ public class JsonObjectAdapter implements MapValue {
     public Value getValue(String name) {
         FieldTreeNode childMd;
         if(nodeMd!=null) {
-            childMd=nodeMd.getFields().getField(name);
+            childMd=nodeMd.resolve(new Path(name));
         } else {
             childMd=null;
         }
         JsonNode childNode=node.get(name);
         return DocumentFieldAccessor.getValueForField(childMd,childNode);
+    }
+
+    @Override
+    public String toString() {
+        return node.toString();
     }
 }
