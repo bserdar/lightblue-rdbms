@@ -32,12 +32,11 @@ public class Table {
     final PrimaryKey primaryKey;
 
     public Table(String name) {
-        this.name=name.toUpperCase();
-        this.primaryKey=null;
+        this(name,null);
     }
 
     public Table(String name,PrimaryKey pkey) {
-        this.name=name.toUpperCase();
+        this.name=clean(name);
         this.primaryKey=pkey;
     }
     
@@ -116,6 +115,17 @@ public class Table {
             bld.append(" PK= ").append(primaryKey.toString());
         if(!foreignKeys.isEmpty())
             bld.append(" FK= ").append(foreignKeys.toString());
+        return bld.toString();
+    }
+
+    public static String clean(String name) {
+        StringBuilder bld=new StringBuilder();
+        int n=name.length();
+        for(int i=0;i<n;i++) {
+            char c=name.charAt(i);
+            if(!Character.isWhitespace(c))
+                bld.append(Character.toUpperCase(c));
+        }
         return bld.toString();
     }
 }

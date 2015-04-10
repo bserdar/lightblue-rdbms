@@ -26,9 +26,10 @@ package com.redhat.lightblue.rdbms.rdsl;
  * <li>lob: Large binary object. Can be an array of bytes or char</li>
  * <li>list: An instance of ValueList.</li>
  * <li>map: An instance of ValueMap</li>
+ * <li>table: An instance of Table</li>
  * <ul>
  */
 public enum ValueType {
-  primitive, lob, list, map 
+    primitive, lob, list, map, table 
 }
 

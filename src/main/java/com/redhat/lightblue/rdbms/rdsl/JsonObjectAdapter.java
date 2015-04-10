@@ -68,6 +68,22 @@ public class JsonObjectAdapter implements MapValue {
         return DocumentFieldAccessor.getValueForField(childMd,childNode);
     }
 
+    public FieldTreeNode getMd(String name) {
+        if(nodeMd!=null) {
+            return nodeMd.resolve(new Path(name));
+        } else {
+            return null;
+        }        
+    }
+
+    public FieldTreeNode getMd() {
+        return nodeMd;
+    }
+
+    public ObjectNode getNode() {
+        return node;
+    }
+
     @Override
     public String toString() {
         return node.toString();

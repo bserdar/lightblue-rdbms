@@ -29,58 +29,21 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
-import com.redhat.lightblue.rdbms.metadata.RDBMSDataStoreParser;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
+
 import com.redhat.lightblue.rdbms.tables.Table;
 import com.redhat.lightblue.rdbms.tables.PrimaryKey;
 import com.redhat.lightblue.rdbms.tables.Column;
 
-public class ExecutionContextTest extends AbstractJsonNodeTest {
-
-    private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
-
-    public static JsonDoc getDoc(String fname) throws Exception {
-        JsonNode node = loadJsonNode(fname);
-        return new JsonDoc(node);
-    }
-
-    public static EntityMetadata getMd(String fname) throws Exception {
-        JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<>();
-        extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("rdbms", new RDBMSDataStoreParser<JsonNode>());
-        TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
-        EntityMetadata md = parser.parseEntityMetadata(node);
-        PredefinedFields.ensurePredefinedFields(md);
-        return md;
-    }
-
-    public static Map<String,Table> getTables() throws Exception {
-        Table t=new Table("schema.table",new PrimaryKey("id1","id2"));
-        new Column(t,"id1");
-        new Column(t,"id2");
-        new Column(t,"col1");
-        new Column(t,"col2");
-        Map<String,Table> map=new HashMap<>();
-        map.put(t.getName(),t);
-        return map;
-    }
+public class ExecutionContextTest {
 
     @Test
     public void insertSanityCheck() throws Exception {
-        EntityMetadata md=getMd("testMetadata.json");
-        JsonDoc doc=getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(getTables(),doc,md);
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
         System.out.println(ctx);
 
         Value v=ctx.getVarValue(new Path("$document"));
@@ -96,10 +59,8 @@ public class ExecutionContextTest extends AbstractJsonNodeTest {
             v=ctx.getVarValue(new Path("$tables.schema"));
             Assert.fail();
         } catch (Exception e) {}
-        try {
-            v=ctx.getVarValue(new Path("$tables.schema.table"));
-            Assert.fail();
-        } catch (Exception e) {}
+        v=ctx.getVarValue(new Path("$tables.schema.table"));
+        Assert.assertTrue(v.getValue() instanceof Table);
 
         v=ctx.getVarValue(new Path("$tables.schema.table.col1"));
         Assert.assertNotNull(v);
@@ -108,9 +69,9 @@ public class ExecutionContextTest extends AbstractJsonNodeTest {
     
     @Test
     public void updateSanityCheck() throws Exception {
-        EntityMetadata md=getMd("testMetadata.json");
-        JsonDoc doc=getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForUpdate(getTables(),doc,doc,md);
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForUpdate(TestUtil.getTables(md),doc,doc,md);
         System.out.println(ctx);
 
         Value v=ctx.getVarValue(new Path("$document"));
@@ -129,10 +90,8 @@ public class ExecutionContextTest extends AbstractJsonNodeTest {
             v=ctx.getVarValue(new Path("$tables.schema"));
             Assert.fail();
         } catch (Exception e) {}
-        try {
-            v=ctx.getVarValue(new Path("$tables.schema.table"));
-            Assert.fail();
-        } catch (Exception e) {}
+        v=ctx.getVarValue(new Path("$tables.schema.table"));
+        Assert.assertTrue(v.getValue() instanceof Table);
 
         v=ctx.getVarValue(new Path("$tables.schema.table.col1"));
         Assert.assertNotNull(v);
@@ -141,7 +100,8 @@ public class ExecutionContextTest extends AbstractJsonNodeTest {
 
     @Test
     public void deleteSanityCheck() throws Exception {
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForDeletion(getTables(),JsonNodeFactory.instance.textNode("id"));
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),JsonNodeFactory.instance.textNode("id"));
         System.out.println(ctx);
         Value v=ctx.getVarValue(new Path("$docId"));
         Assert.assertEquals(ValueType.primitive,v.getType());
@@ -151,7 +111,7 @@ public class ExecutionContextTest extends AbstractJsonNodeTest {
         node.set("id1",JsonNodeFactory.instance.textNode("id1"));
         node.set("id2",JsonNodeFactory.instance.numberNode(1));
 
-        ctx=ScriptExecutionContext.getInstanceForDeletion(getTables(),node);
+        ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),node);
         System.out.println(ctx);
         v=ctx.getVarValue(new Path("$docId"));
         Assert.assertEquals(ValueType.map,v.getType());
@@ -162,5 +122,69 @@ public class ExecutionContextTest extends AbstractJsonNodeTest {
         Assert.assertEquals("1",v.getValue().toString());
     }
 
-    
+     @Test
+    public void modifyFirstLevelDocumentField() throws Exception {
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+
+        Value v=ctx.getVarValue(new Path("$document.field1"));
+        Assert.assertEquals("value1",v.getValue().toString());
+        
+        ctx.setVarValue(new Path("$document.field1"),new Value("test"));
+        Assert.assertEquals("test",ctx.getVarValue(new Path("$document.field1")).getValue().toString());
+    }
+
+    @Test
+    public void modifySecondLevelDocumentField() throws Exception {
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+
+        Value v=ctx.getVarValue(new Path("$document.field6.nf1"));
+        Assert.assertEquals("nvalue1",v.getValue().toString());
+        
+        ctx.setVarValue(new Path("$document.field6.nf1"),new Value("test"));
+        Assert.assertEquals("test",ctx.getVarValue(new Path("$document.field6.nf1")).getValue().toString());
+    }
+
+    @Test
+    public void modifyArrayDocumentField() throws Exception {
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+
+        Value v=ctx.getVarValue(new Path("$document.field6.nf5.1"));
+        Assert.assertEquals("10",v.getValue().toString());
+        
+        ctx.setVarValue(new Path("$document.field6.nf5.1"),new Value(11));
+        Assert.assertEquals("11",ctx.getVarValue(new Path("$document.field6.nf5.1")).getValue().toString());
+    }
+
+    @Test
+    public void modifyObjectArrayDocumentField() throws Exception {
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+
+        Value v=ctx.getVarValue(new Path("$document.field7.1.elemf1"));
+        Assert.assertEquals("elvalue1_1",v.getValue().toString());
+        
+        ctx.setVarValue(new Path("$document.field7.1.elemf1"),new Value("test"));
+        Assert.assertEquals("test",ctx.getVarValue(new Path("$document.field7.1.elemf1")).getValue().toString());
+    }
+
+    @Test
+    public void modifyColumn() throws Exception {
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+
+        Value v=ctx.getVarValue(new Path("$tables.schema.table.col1"));
+        Assert.assertNull(v.getValue());
+        
+        ctx.setVarValue(new Path("$tables.schema.table.col1"),new Value(1));
+        Assert.assertEquals("1",ctx.getVarValue(new Path("$tables.schema.table.col1")).getValue().toString());
+    }
+
 }

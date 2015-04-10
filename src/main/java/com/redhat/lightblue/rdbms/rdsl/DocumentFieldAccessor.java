@@ -20,10 +20,14 @@ package com.redhat.lightblue.rdbms.rdsl;
 
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ArrayField;
@@ -46,6 +50,8 @@ import com.redhat.lightblue.util.Path;
  */
 public class DocumentFieldAccessor implements VariableAccessor {
 
+    private static final Logger LOGGER=LoggerFactory.getLogger(DocumentFieldAccessor.class);
+
     private final JsonDoc doc;
     private final EntityMetadata md;
 
@@ -66,19 +72,22 @@ public class DocumentFieldAccessor implements VariableAccessor {
      * everything else)
      */
     public static Value getValueForField(FieldTreeNode nodeMd,JsonNode node) {
+        LOGGER.debug("getValueForField: nodeMd={},node={}",nodeMd,node);
         if(node instanceof ArrayNode) {
+            LOGGER.debug("getValueForField: node is array");
             if(nodeMd instanceof ArrayField || nodeMd==null)
                 return new Value(new JsonArrayAdapter((ArrayNode)node,(ArrayField)nodeMd));
             else
                 throw Error.get(ScriptErrors.ERR_INCONSISTENT_DATA,nodeMd.getType().getName()+"/"+node.getClass().getName());
         } else if(node instanceof ObjectNode) {
+            LOGGER.debug("getValueForField: node is object");
             if(nodeMd instanceof ObjectField||
                nodeMd instanceof ObjectArrayElement||
                nodeMd==null)
                 return new Value(new JsonObjectAdapter((ObjectNode)node,(ObjectField)nodeMd));
             else
                 throw Error.get(ScriptErrors.ERR_INCONSISTENT_DATA,nodeMd.getType().getName()+"/"+node.getClass().getName());
-        } else if(node != null) {
+        } else if(node != null&&!(node instanceof NullNode) ) {
             if(nodeMd!=null) {
                 if(nodeMd.getType() instanceof BinaryType) {
                     return new Value(ValueType.lob,nodeMd.getType().fromJson(node));
@@ -140,16 +149,17 @@ public class DocumentFieldAccessor implements VariableAccessor {
         setVarValue(var,value,nodeMd);
     }
 
-    private void setVarValue(Path var,Value value,FieldTreeNode nodeMd) {
+    public void setVarValue(Path var,Value value,FieldTreeNode nodeMd) {
         if(nodeMd instanceof ArrayField) {
             // We expect the value to be a list
             if(value.getType()==ValueType.list) {
                 ListValue lv=value.getListValue();
+                // Get the parent node for var, add a new ArrayNode to it
                 if(lv==null) {
-                    doc.modify(var,null,true);
+                    JsonDoc.modify(doc.getRoot(),var,null,false);
                 } else {
                     ArrayNode arrayNode=JsonNodeFactory.instance.arrayNode();
-                    doc.modify(var,arrayNode,true);
+                    JsonDoc.modify(doc.getRoot(),var,arrayNode,true);
                     setValue(var,arrayNode,lv,((ArrayField)nodeMd).getElement());
                 }
             } else
@@ -160,10 +170,10 @@ public class DocumentFieldAccessor implements VariableAccessor {
             if(value.getType()==ValueType.map) {
                 MapValue mv=value.getMapValue();
                 if(mv==null) {
-                    doc.modify(var,null,false);
+                    JsonDoc.modify(doc.getRoot(),var,null,false);
                 } else {
                     ObjectNode objectNode=JsonNodeFactory.instance.objectNode();
-                    doc.modify(var,objectNode,true);
+                    JsonDoc.modify(doc.getRoot(),var,objectNode,true);
                     Fields fields;
                     if(nodeMd instanceof ObjectField)
                         fields=((ObjectField)nodeMd).getFields();
@@ -178,9 +188,9 @@ public class DocumentFieldAccessor implements VariableAccessor {
             if(value.getType()==ValueType.lob) {
                 Object lob=value.getValue();
                 if(lob==null) {
-                    doc.modify(var,null,false);
+                    JsonDoc.modify(doc.getRoot(),var,null,false);
                 } else {
-                    doc.modify(var,nodeMd.getType().toJson(JsonNodeFactory.instance,lob),true);
+                    JsonDoc.modify(doc.getRoot(),var,nodeMd.getType().toJson(JsonNodeFactory.instance,lob),true);
                 }
             } else 
                 throw Error.get(ScriptErrors.ERR_INCOMPATIBLE_ASSIGNMENT,var.toString());
@@ -188,9 +198,9 @@ public class DocumentFieldAccessor implements VariableAccessor {
             // A primitive value.
             Object v=value.getValue();
             if(v==null) {
-                doc.modify(var,null,false);
+                JsonDoc.modify(doc.getRoot(),var,null,false);
             } else {
-                doc.modify(var,nodeMd.getType().toJson(JsonNodeFactory.instance,v),true);
+                JsonDoc.modify(doc.getRoot(),var,nodeMd.getType().toJson(JsonNodeFactory.instance,v),true);
             }
         }
     }

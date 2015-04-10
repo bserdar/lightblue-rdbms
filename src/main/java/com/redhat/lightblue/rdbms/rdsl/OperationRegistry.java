@@ -29,6 +29,14 @@ public class OperationRegistry {
 
     private final Map<String,ScriptOperationFactory> map=new HashMap<>();
 
+
+    /**
+     * Constructs the registry with all known operations
+     */
+    public OperationRegistry() {
+        add(new SetOperation());
+    }
+
     /**
      * Registers the given script operation factory
      */

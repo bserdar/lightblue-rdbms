@@ -37,5 +37,25 @@ public final class ScriptErrors {
     public static final String ERR_MISSING_ARG="rdbms:script:missing-arg";
     public static final String ERR_INVALID_DEREFERENCE="rdbms:script:invalid-dereference";
 
+    /**
+     * Map operation must be called with a table and document object
+     */
+    public static final String ERR_INVALID_MAP_CALL="rdbms:script:map:invalid-map-call";
+
+    /**
+     * Map operation is called with an object that does not know its metadata (it is not part of the document)
+     */
+    public static final String ERR_NEED_DOCUMENT_FOR_MAP="rdbms:script:map:need-document-for-map";
+    
+    /**
+     * Column not found in column mapping
+     */
+    public static final String ERR_MAP_UNKNOWN_COLUMN="rdbms:script:map:unknown-column";
+
+    /**
+     * A column is mapped to an array value
+     */
+    public static final String ERR_COLUMN_MAPPED_TO_ARRAY="rdbms:script:map:column-mapped-to-array";
+
     private ScriptErrors() {}
 }

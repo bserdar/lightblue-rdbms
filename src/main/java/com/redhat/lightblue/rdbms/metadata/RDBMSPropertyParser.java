@@ -23,12 +23,16 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.metadata.parser.PropertyParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 
 import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.rdbms.tables.Table;
+import com.redhat.lightblue.rdbms.tables.Column;
 import com.redhat.lightblue.rdbms.tables.ForeignKey;
 import com.redhat.lightblue.rdbms.tables.PrimaryKey;
 
@@ -50,9 +54,13 @@ import com.redhat.lightblue.rdbms.tables.PrimaryKey;
  * </pre>
  */
 public class RDBMSPropertyParser<T> extends PropertyParser<T> {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(RDBMSPropertyParser.class);
     
     public static final String ERR_INVALID_TABLE_REFERENCE="rdbms:metadata:parser:invalid-table-reference";
     public static final String ERR_INVALID_PRIMARY_KEY_REFERENCE="rdbms:metadata:parser:invalid-primary-key-reference";
+    public static final String ERR_NO_COLUMNS="rdbms:metadata:parser:no-columns";
+    public static final String ERR_INVALID_COLUMN="rdbms:metadata:parser:invalid-column";
 
     private static final class FKey {
         Table sourceTable;
@@ -63,12 +71,15 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
 
     @Override
     public Object parse(String name, MetadataParser<T> p, T node) {
+        LOGGER.debug("parsing rdbms metadata");
         List<T> tables = p.getObjectList(node,"tables");
         if(tables!=null) {
+            LOGGER.debug("parsing tables");
             List<FKey> foreignKeyList=new ArrayList<>();
             Map<String,Table> tableMap=new HashMap<>();
             for(T table:tables) {
                 Table t=parseTable(p,table,foreignKeyList);
+                LOGGER.debug("parsed {}",t.getName());
                 tableMap.put(t.getName(),t);
             }
             linkForeignKeys(tableMap,foreignKeyList);
@@ -79,6 +90,7 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
             fieldInfo.setColumnName(p.getStringProperty(node,"column"));
             fieldInfo.setReadFilter(p.getStringProperty(node,"readFilter"));
             fieldInfo.setWriteFilter(p.getStringProperty(node,"writeFilter"));
+            LOGGER.debug("Parsed field mapping for {}.{}",fieldInfo.getTableName(),fieldInfo.getColumnName());
             return fieldInfo;
         }
     }
@@ -122,9 +134,21 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
 
     private Table parseTable(MetadataParser<T> p,T tableNode,List<FKey> foreignKeyList) {
         String tableName=p.getRequiredStringProperty(tableNode,"table");
+        List<T> columnList=p.getObjectList(tableNode,"columns");
+        if(columnList==null||columnList.isEmpty())
+            throw Error.get(ERR_NO_COLUMNS,tableName);
         List<String> primaryKeyCols=p.getStringList(tableNode,"primaryKey");
         PrimaryKey primaryKey=primaryKeyCols==null||primaryKeyCols.isEmpty()?null:new PrimaryKey(primaryKeyCols);
         Table table=new Table(tableName,primaryKey);
+        for(T col:columnList) {
+            parseColumn(p,table,col);
+        }
+        // Make sure primary key is valid
+        if(primaryKey!=null) {
+            for(String col:primaryKey.get())
+                if(table.getColumn(col)==null)
+                    throw Error.get(ERR_INVALID_COLUMN,col);
+        }
 
         List<T> fkeyList=p.getObjectList(tableNode,"foreignKeys");
         if(fkeyList!=null) {
@@ -142,6 +166,11 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
             }
         }
         return table;
+    }
+
+    private void parseColumn(MetadataParser<T> p,Table table,T colNode) {
+        String name=p.getRequiredStringProperty(colNode,"column");
+        Column c=new Column(table,name);
     }
 
     private T convertTable(MetadataParser<T> p,T emptyNode,Table table) {

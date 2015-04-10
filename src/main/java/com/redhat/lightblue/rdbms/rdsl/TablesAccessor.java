@@ -53,6 +53,8 @@ public class TablesAccessor implements VariableAccessor {
         if(ref!=null) {
             if(ref instanceof Column) {
                 return new Value(ValueType.primitive,((Column)ref).getValue());
+            } else if(ref instanceof Table) {
+                return new Value((Table)ref);
             } else
                 throw Error.get(ScriptErrors.ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
         } else
@@ -67,6 +69,8 @@ public class TablesAccessor implements VariableAccessor {
         if(ref!=null) {
             if(ref instanceof Column) {
                 return ValueType.primitive;
+            } else if(ref instanceof Table) {
+                return ValueType.table;
             } else
                 throw Error.get(ScriptErrors.ERR_INVALID_REFERENCE_TO_TABLE,var.toString());
         } else

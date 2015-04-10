@@ -106,8 +106,8 @@ public class TempVarListValueAdapter implements ListValue, TempVarResolver {
                 throw Error.get(ScriptErrors.ERR_INVALID_ARRAY_INDEX,name.toString());
             }
             if(name.numSegments()>1) {
-                if(element instanceof TempVarResolver) {
-                    return ((TempVarResolver)element).get(name.suffix(-1));
+                if(element.getValue() instanceof TempVarResolver) {
+                    return ((TempVarResolver)element.getValue()).get(name.suffix(-1));
                 } else {
                     throw Error.get(ScriptErrors.ERR_INVALID_DEREFERENCE);
                 } 

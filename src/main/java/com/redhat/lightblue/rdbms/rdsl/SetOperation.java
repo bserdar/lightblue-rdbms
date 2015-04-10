@@ -40,6 +40,26 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
     private Value rValue;
 
 
+    public SetOperation() {}
+
+    public SetOperation(Path lvalue,
+                        Script rvalue) {
+        this.lVariable=lvalue;
+        this.rScript=rvalue;
+    }
+
+    public SetOperation(Path lvalue,
+                        Path rvalue) {
+        this.lVariable=lvalue;
+        this.rVariable=rvalue;
+    }
+
+    public SetOperation(Path lvalue,
+                        Value rvalue) {
+        this.lVariable=lvalue;
+        this.rValue=rvalue;
+    }
+
     @Override
     public String getName() {
         return NAME;

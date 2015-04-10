@@ -22,6 +22,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Util;
@@ -30,6 +33,8 @@ import com.redhat.lightblue.util.Util;
  * MapValue adapter backed by a hashmap
  */
 public class TempVarMapValueAdapter implements MapValue, TempVarResolver {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(TempVarMapValueAdapter.class);
 
     private Map<String,Value> map;
 
@@ -55,7 +60,9 @@ public class TempVarMapValueAdapter implements MapValue, TempVarResolver {
         if(v!=null&&!v.isEmpty()) {
             for(Iterator<String> itr=v.getNames();itr.hasNext();) {
                 String name=itr.next();
+                LOGGER.debug("copying {}",name);
                 Value value=v.getValue(name);
+                LOGGER.debug("value={}",value);
                 if(value.getType()==ValueType.map) {
                     map.put(name,new Value(new TempVarMapValueAdapter(value.getMapValue())));
                 } else if(value.getType()==ValueType.list) {
@@ -88,14 +95,16 @@ public class TempVarMapValueAdapter implements MapValue, TempVarResolver {
 
     @Override
     public Value get(Path name) {
+        LOGGER.debug("get:{}",name);
         if(name.numSegments()==0) {
             return new Value(this);
         } else {
             Value element;
             element=map.get(name.head(0));
+            LOGGER.debug("head:{}",element);
             if(name.numSegments()>1) {
-                if(element instanceof TempVarResolver) {
-                    return ((TempVarResolver)element).get(name.suffix(-1));
+                if(element.getValue() instanceof TempVarResolver) {
+                    return ((TempVarResolver)element.getValue()).get(name.suffix(-1));
                 } else {
                     throw Error.get(ScriptErrors.ERR_INVALID_DEREFERENCE);
                 } 

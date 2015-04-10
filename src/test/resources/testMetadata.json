@@ -21,6 +21,25 @@
       "delete" : ["test-delete"],
       "find" : ["test-find"]
     },
+    "rdbms": {
+       "tables": [
+         {
+           "table":"schema.table",
+           "columns": [
+                { "column":"id1" },
+                { "column":"id2" },
+                { "column":"col1" },
+                { "column":"col2" },
+                { "column":"col3" },
+                { "column":"col4" },
+                { "column":"col5" },
+                { "column":"col6" },
+                { "column":"col7" }
+           ],
+           "primaryKey": [ "id1","id2" ]
+         }
+       ]
+    },
     "fields": {
       "objectType": {"type": "string"},
       "field1": {
@@ -29,23 +48,31 @@
           "find" : [ "test.field1-find", "test.field1-insert", "test.field1-update" ],
           "insert": [ "test.field1-insert" ],
           "update": [ "test.field1-update" ]
+        },
+        "rdbms": {
+             "table":"schema.table",
+             "column":"id1"
         }
       },
       "field2": {"type": "string",
         "access" : {
           "find" : [ "anyone" ]
+        },
+        "rdbms": {
+             "table":"schema.table",
+             "column":"id2"
         }
       },
-      "field3": {"type": "integer"},
-      "field4": {"type": "bigdecimal"},
-      "field5": {"type": "boolean"},
+      "field3": {"type": "integer","rdbms":{"table":"schema.table","column":"col1"}},
+      "field4": {"type": "bigdecimal","rdbms":{"table":"schema.table","column":"col2"}},
+      "field5": {"type": "boolean","rdbms":{"table":"schema.table","column":"col3"}},
       "field6": {
         "type": "object",
         "fields": {
-          "nf1": {"type": "string"},
-          "nf2": {"type": "string"},
-          "nf3": {"type": "integer"},
-          "nf4": {"type": "boolean"},
+          "nf1": {"type": "string","rdbms":{"table":"schema.table","column":"col4"}},
+          "nf2": {"type": "string","rdbms":{"table":"schema.table","column":"col5"}},
+          "nf3": {"type": "integer","rdbms":{"table":"schema.table","column":"col6"}},
+          "nf4": {"type": "boolean","rdbms":{"table":"schema.table","column":"col7"}},
           "nf5": {
             "type": "array",
             "items": {"type": "integer"}

@@ -34,6 +34,14 @@ import com.redhat.lightblue.util.Error;
 public class Script implements ScriptOperation {
     private List<ScriptOperation> operations;
 
+    public Script() {}
+
+    public Script(ScriptOperation... op) {
+        operations=new ArrayList<>();
+        for(ScriptOperation x:op)
+            operations.add(x);
+    }
+
     @Override
     public String getName() {
         return null;

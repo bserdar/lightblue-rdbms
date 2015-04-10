@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import com.redhat.lightblue.rdbms.tables.Table;
+
 /**
  * Wrapper for values within a script. Contains a valueType, and the
  * actual value with that type
@@ -41,6 +43,10 @@ public class Value {
         this.value=value;
     }
 
+    public Value(Table t) {
+        this(ValueType.table,t);
+    }
+
     /**
      * Constructs a List value
      */
@@ -53,6 +59,26 @@ public class Value {
      */
     public Value(MapValue mv) {
         this(ValueType.map,mv);
+    }
+
+    public Value(String s) {
+        this(ValueType.primitive,s);
+    }
+
+    public Value(int s) {
+        this(ValueType.primitive,s);
+    }
+
+    public Value(long s) {
+        this(ValueType.primitive,s);
+    }
+
+    public Value(boolean s) {
+        this(ValueType.primitive,s);
+    }
+
+    public Value(double s) {
+        this(ValueType.primitive,s);
     }
 
     /**
@@ -77,6 +103,10 @@ public class Value {
         return (ListValue)value;
     }
 
+    public Table getTableValue() {
+        return (Table) value;
+    }
+
     /**
      * Returns the value as a MapValue. If the value is not a
      * MapValue, a TypeCastException will be thrown
@@ -95,7 +125,7 @@ public class Value {
 
     @Override
     public String toString() {
-        return type+"("+value+")";
+        return value==null?"null":value.toString();
     }
 
     /**
