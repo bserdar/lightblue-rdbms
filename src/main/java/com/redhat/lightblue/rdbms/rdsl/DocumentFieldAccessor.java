@@ -83,9 +83,14 @@ public class DocumentFieldAccessor implements VariableAccessor {
             LOGGER.debug("getValueForField: node is object");
             if(nodeMd instanceof ObjectField||
                nodeMd instanceof ObjectArrayElement||
-               nodeMd==null)
-                return new Value(new JsonObjectAdapter((ObjectNode)node,(ObjectField)nodeMd));
-            else
+               nodeMd==null) {
+                if(nodeMd instanceof ObjectField)
+                    return new Value(new JsonObjectAdapter((ObjectNode)node,(ObjectField)nodeMd));
+                else if(nodeMd instanceof ObjectArrayElement)
+                    return new Value(new JsonObjectAdapter((ObjectNode)node,(ObjectArrayElement)nodeMd));
+                else
+                    return new Value(new JsonObjectAdapter((ObjectNode)node,null));
+            } else
                 throw Error.get(ScriptErrors.ERR_INCONSISTENT_DATA,nodeMd.getType().getName()+"/"+node.getClass().getName());
         } else if(node != null&&!(node instanceof NullNode) ) {
             if(nodeMd!=null) {

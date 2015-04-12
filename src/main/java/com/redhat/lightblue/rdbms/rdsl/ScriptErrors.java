@@ -57,5 +57,10 @@ public final class ScriptErrors {
      */
     public static final String ERR_COLUMN_MAPPED_TO_ARRAY="rdbms:script:map:column-mapped-to-array";
 
+    /**
+     * A list is required in foreach
+     */
+    public static final String ERR_LIST_REQUIRED="rdbms:script:foreach:list-required";
+
     private ScriptErrors() {}
 }
