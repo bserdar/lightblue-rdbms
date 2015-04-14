@@ -44,7 +44,7 @@ public class NullOperationTest {
     public void nullTest() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         // Assign some values to columns
         ctx.setVarValue(new Path("$tables.schema.table.id1"),new Value(1));

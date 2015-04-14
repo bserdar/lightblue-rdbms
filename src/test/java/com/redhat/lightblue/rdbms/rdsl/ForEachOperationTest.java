@@ -69,7 +69,7 @@ public class ForEachOperationTest {
     public void arrayTest() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         CallbackOperation op=new CallbackOperation();
         Script s=new Script(new ForEachOperation(new Path("$document.field7"),

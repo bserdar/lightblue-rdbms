@@ -35,7 +35,7 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
     private Path lVariable;
 
     // Only one of these will be non-null, depending on the rvalue
-    private Script rScript;
+    private ScriptOperation rScript;
     private Path rVariable;
     private Value rValue;
 
@@ -43,7 +43,7 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
     public SetOperation() {}
 
     public SetOperation(Path lvalue,
-                        Script rvalue) {
+                        ScriptOperation rvalue) {
         this.lVariable=lvalue;
         this.rScript=rvalue;
     }
@@ -73,7 +73,7 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
         lVariable=p;
     }
 
-    public Script getRScript() {
+    public ScriptOperation getRScript() {
         return rScript;
     }
 

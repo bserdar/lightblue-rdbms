@@ -62,5 +62,15 @@ public final class ScriptErrors {
      */
     public static final String ERR_LIST_REQUIRED="rdbms:script:foreach:list-required";
 
+    /**
+     * test for conditional is invalid
+     */
+    public static final String ERR_INVALID_TEST="rdbms:script:conditional:invalid-test";
+
+    /**
+     * Boolean value required for conditional test
+     */
+    public static final String ERR_BOOLEAN_REQUIRED="rdbms:script:conditional:boolean-required";
+
     private ScriptErrors() {}
 }

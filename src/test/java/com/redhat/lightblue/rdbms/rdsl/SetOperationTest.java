@@ -44,7 +44,7 @@ public class SetOperationTest {
     public void modifyColumn() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Assert.assertNull(ctx.getVarValue(new Path("$tables.schema.table.col1")).getValue());
         Script s=new Script(new SetOperation(new Path("$tables.schema.table.col1"),
@@ -57,7 +57,7 @@ public class SetOperationTest {
     public void modifyDocField() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         ctx.setVarValue(new Path("$tables.schema.table.col1"),new Value(1));
         Assert.assertEquals("value1",ctx.getVarValue(new Path("$document.field1")).getValue());
@@ -71,7 +71,7 @@ public class SetOperationTest {
     public void createSimpleTempVar() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
         
         Script s=new Script(new SetOperation(new Path("test"),
                                              new Path("$document.field1")));
@@ -83,7 +83,7 @@ public class SetOperationTest {
     public void createObjectTempVar() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
         
         Script s=new Script(new SetOperation(new Path("test"),
                                              new Path("$document.field6")));

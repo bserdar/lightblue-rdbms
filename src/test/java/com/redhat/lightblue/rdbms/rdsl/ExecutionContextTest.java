@@ -43,7 +43,7 @@ public class ExecutionContextTest {
     public void insertSanityCheck() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
         System.out.println(ctx);
 
         Value v=ctx.getVarValue(new Path("$document"));
@@ -71,7 +71,7 @@ public class ExecutionContextTest {
     public void updateSanityCheck() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForUpdate(TestUtil.getTables(md),doc,doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForUpdate(TestUtil.getTables(md),doc,doc,md,null);
         System.out.println(ctx);
 
         Value v=ctx.getVarValue(new Path("$document"));
@@ -101,7 +101,7 @@ public class ExecutionContextTest {
     @Test
     public void deleteSanityCheck() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),JsonNodeFactory.instance.textNode("id"));
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),JsonNodeFactory.instance.textNode("id"),null);
         System.out.println(ctx);
         Value v=ctx.getVarValue(new Path("$docId"));
         Assert.assertEquals(ValueType.primitive,v.getType());
@@ -111,7 +111,7 @@ public class ExecutionContextTest {
         node.set("id1",JsonNodeFactory.instance.textNode("id1"));
         node.set("id2",JsonNodeFactory.instance.numberNode(1));
 
-        ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),node);
+        ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),node,null);
         System.out.println(ctx);
         v=ctx.getVarValue(new Path("$docId"));
         Assert.assertEquals(ValueType.map,v.getType());
@@ -126,7 +126,7 @@ public class ExecutionContextTest {
     public void modifyFirstLevelDocumentField() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Value v=ctx.getVarValue(new Path("$document.field1"));
         Assert.assertEquals("value1",v.getValue().toString());
@@ -139,7 +139,7 @@ public class ExecutionContextTest {
     public void modifySecondLevelDocumentField() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Value v=ctx.getVarValue(new Path("$document.field6.nf1"));
         Assert.assertEquals("nvalue1",v.getValue().toString());
@@ -152,7 +152,7 @@ public class ExecutionContextTest {
     public void modifyArrayDocumentField() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Value v=ctx.getVarValue(new Path("$document.field6.nf5.1"));
         Assert.assertEquals("10",v.getValue().toString());
@@ -165,7 +165,7 @@ public class ExecutionContextTest {
     public void modifyObjectArrayDocumentField() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Value v=ctx.getVarValue(new Path("$document.field7.1.elemf1"));
         Assert.assertEquals("elvalue1_1",v.getValue().toString());
@@ -178,7 +178,7 @@ public class ExecutionContextTest {
     public void modifyColumn() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Value v=ctx.getVarValue(new Path("$tables.schema.table.col1"));
         Assert.assertNull(v.getValue());

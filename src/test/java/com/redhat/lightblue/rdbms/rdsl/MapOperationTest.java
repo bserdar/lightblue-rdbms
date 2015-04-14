@@ -44,7 +44,7 @@ public class MapOperationTest {
     public void mapTableToDoc() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         // Assign some values to columns
         ctx.setVarValue(new Path("$tables.schema.table.id1"),new Value(1));
@@ -76,7 +76,7 @@ public class MapOperationTest {
     public void mapDocToTable() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
         JsonDoc doc=TestUtil.getDoc("sample1.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
 
         Script s=new Script(new MapOperation(new Path("$document"),new Path("$tables.schema.table")));
         s.execute(ctx);

@@ -38,6 +38,10 @@ public interface ScriptOperationFactory {
      * <pre>
      *   { "operationName" : { args } }
      * </pre>
+     * or
+     * <pre>
+     *   { "operationName" : arg }
+     * </pre>
      */
     ScriptOperation getOperation(OperationRegistry reg,ObjectNode operationNode);
 }
