@@ -36,6 +36,8 @@ import com.redhat.lightblue.rdbms.tables.Column;
 import com.redhat.lightblue.rdbms.tables.ForeignKey;
 import com.redhat.lightblue.rdbms.tables.PrimaryKey;
 
+import com.redhat.lightblue.rdbms.dialect.AbstractDialect;
+
 /**
  * RDBMS property parser. Parses a property named "rdbms" in schema,
  * or within a field definition. Since it doesn't know the context it
@@ -61,6 +63,7 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
     public static final String ERR_INVALID_PRIMARY_KEY_REFERENCE="rdbms:metadata:parser:invalid-primary-key-reference";
     public static final String ERR_NO_COLUMNS="rdbms:metadata:parser:no-columns";
     public static final String ERR_INVALID_COLUMN="rdbms:metadata:parser:invalid-column";
+    public static final String ERR_INVALID_JDBC_TYPE="rdbms:metadata:parser:invalid-jdbc-type";
 
     private static final class FKey {
         Table sourceTable;
@@ -171,6 +174,16 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
     private void parseColumn(MetadataParser<T> p,Table table,T colNode) {
         String name=p.getRequiredStringProperty(colNode,"column");
         Column c=new Column(table,name);
+        String x=p.getStringProperty(colNode,"nativeType");
+        if(x!=null)
+            c.setNativeType(x);
+        x=p.getStringProperty(colNode,"jdbcType");
+        if(x!=null) {
+            Integer t=AbstractDialect.parseJDBCType(x);
+            if(t==null)
+                throw Error.get(ERR_INVALID_JDBC_TYPE,x);
+            c.setJdbcType(t);
+        }
     }
 
     private T convertTable(MetadataParser<T> p,T emptyNode,Table table) {

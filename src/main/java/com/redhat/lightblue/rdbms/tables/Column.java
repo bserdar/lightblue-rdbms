@@ -26,6 +26,8 @@ public class Column {
     private final String name;
     private Object value;
     private Table table;
+    private Integer jdbcType;
+    private String nativeType;
 
     public Column(Table table,String name) {
         this.table=table;
@@ -47,6 +49,34 @@ public class Column {
 
     public Table getTable() {
         return table;
+    }
+
+    /**
+     * The SQL type of the column (java.sql.Types). Can be null, meaning unspecified
+     */
+    public Integer getJdcType() {
+        return jdbcType;
+    }
+
+    /**
+     * The SQL type of the column (java.sql.Types). Can be null, meaning unspecified
+     */
+    public void setJdbcType(Integer type) {
+        this.jdbcType=type;
+    }
+
+    /**
+     * The native type of the column. Optional information. If specified, this is passed to the dialect
+     */
+    public String getNativeType() {
+        return nativeType;
+    }
+
+    /**
+     * The native type of the column. Optional information. If specified, this is passed to the dialect
+     */
+    public void setNativeType(String s) {
+        nativeType=s;
     }
 
     @Override

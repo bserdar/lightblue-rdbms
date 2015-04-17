@@ -20,6 +20,8 @@ package com.redhat.lightblue.rdbms.rdsl;
 
 import java.util.Map;
 
+import java.sql.Connection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.rdbms.tables.Table;
 
+import com.redhat.lightblue.rdbms.dialect.Dialect;
+
 /**
  * Contains all the variables and database information required to
  * execute scripts
@@ -46,6 +50,8 @@ public class ScriptExecutionContext implements VariableAccessor {
     private final ScriptExecutionContext parent;
     private Value lastExecutionResult=null;
     private final ScriptOperationFactory opFactory;
+    private Dialect dialect;
+    private Connection connection;
 
     /**
      * Constructs the top-level execution context
@@ -57,14 +63,32 @@ public class ScriptExecutionContext implements VariableAccessor {
     /**
      * Constructs a nested scope
      */
-    public ScriptExecutionContext(ScriptExecutionContext parentScope,ScriptOperationFactory factory) {
+    public ScriptExecutionContext(ScriptExecutionContext parentScope,
+                                  ScriptOperationFactory factory) {
         scope=new TopLevelVariableAccessor();
         this.parent=parentScope;       
         this.opFactory=factory;
+        this.dialect=parentScope==null?null:parentScope.dialect;
     }
 
     public ScriptOperationFactory getOperationFactory() {
         return opFactory;
+    }
+
+    public Dialect getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(Dialect d) {
+        dialect=d;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(Connection c) {
+        connection=c;
     }
 
     /**

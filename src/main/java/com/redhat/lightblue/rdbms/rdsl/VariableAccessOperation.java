@@ -28,6 +28,10 @@ import com.redhat.lightblue.util.Path;
  *   { var: varName }
  * </pre>
  * It returns the value of the variable 'varName'
+ *
+ * The main purpose of this is to expose the value of a variable as a
+ * script. When the grammar requires a script, but passing a variable
+ * value is required, use this.
  */
 public class VariableAccessOperation implements ScriptOperation, ScriptOperationFactory {
 

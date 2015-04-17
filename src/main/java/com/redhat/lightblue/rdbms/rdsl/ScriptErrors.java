@@ -36,6 +36,7 @@ public final class ScriptErrors {
     public static final String ERR_MALFORMED_SCRIPT="rdbms:script:malformed-script";
     public static final String ERR_MISSING_ARG="rdbms:script:missing-arg";
     public static final String ERR_INVALID_DEREFERENCE="rdbms:script:invalid-dereference";
+    public static final String ERR_INVALID_VALUE="rdbms:script:invalid-value";
 
     /**
      * Map operation must be called with a table and document object
@@ -71,6 +72,15 @@ public final class ScriptErrors {
      * Boolean value required for conditional test
      */
     public static final String ERR_BOOLEAN_REQUIRED="rdbms:script:conditional:boolean-required";
+
+    /**
+     * Cannot bind the given value to the statement
+     */
+    public static final String ERR_CANNOT_BIND="rdbms:scrpit:cannot-bind-value";
+
+    public static final String ERR_OUT_PARAMETER_NEEDS_TYPE="rdbms:script:bind:out-parameters-need-jdbc-type";
+    public static final String ERR_OUT_PARAMETER_NEEDS_VARIABLE_BINDING="rdbms:script:bind:out-parameters-need-variable-binding";
+    public static final String ERR_JDBC_ERROR="rdbms:script:jdbc-error";
 
     private ScriptErrors() {}
 }

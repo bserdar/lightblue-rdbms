@@ -28,6 +28,9 @@ import com.redhat.lightblue.util.Path;
  *   { value: value }
  * </pre>
  * It returns the 'value'
+ *
+ * This class is mainly useful where grammar requires a script, but the
+ * situation demands passing a value instead,
  */
 public class ValueOperation implements ScriptOperation, ScriptOperationFactory {
 
