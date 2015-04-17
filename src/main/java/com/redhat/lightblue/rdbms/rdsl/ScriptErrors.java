@@ -37,7 +37,7 @@ public final class ScriptErrors {
     public static final String ERR_MISSING_ARG="rdbms:script:missing-arg";
     public static final String ERR_INVALID_DEREFERENCE="rdbms:script:invalid-dereference";
     public static final String ERR_INVALID_VALUE="rdbms:script:invalid-value";
-
+    public static final String ERR_CANNOT_SET_VALUE_OF_VALUE_BINDING="rdbms:script:binding:cannot-set-value-of-value-binding";
     /**
      * Map operation must be called with a table and document object
      */

@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.rdbms.rdsl;
 
+import com.redhat.lightblue.util.Error;
+
 /**
  * A value binding. This can only be an IN-binding.
  */
@@ -46,4 +48,10 @@ public class ValueBinding extends Binding {
     public Value getValue(ScriptExecutionContext ctx) {
         return value;
     }
+
+    @Override
+    public void setValue(ScriptExecutionContext ctx,Value v) {
+        throw Error.get(ScriptErrors.ERR_CANNOT_SET_VALUE_OF_VALUE_BINDING);
+    }
+
 }

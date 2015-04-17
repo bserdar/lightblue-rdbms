@@ -55,4 +55,9 @@ public class VariableBinding extends Binding {
     public Value getValue(ScriptExecutionContext ctx) {
         return ctx.getVarValue(var);
     }
+
+    @Override
+    public void setValue(ScriptExecutionContext ctx,Value v) {
+        ctx.setVarValue(var,v);
+    }
 }

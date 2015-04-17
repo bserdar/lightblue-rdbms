@@ -43,4 +43,5 @@ public abstract class Binding {
     }
 
     public abstract Value getValue(ScriptExecutionContext ctx);
+    public abstract void setValue(ScriptExecutionContext ctx,Value v);
 }
