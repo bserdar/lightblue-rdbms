@@ -47,6 +47,12 @@ public class ExecuteSqlClauseOperation implements ScriptOperation, ScriptOperati
         this.name=name;
     }
 
+    public ExecuteSqlClauseOperation(String name,String clause,Bindings bindings) {
+        this(name);
+        this.clause=clause;
+        this.bindings=bindings;
+    }
+
     @Override
     public String getName() {
         return name;

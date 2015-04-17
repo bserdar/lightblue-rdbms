@@ -42,6 +42,12 @@ public class Bindings {
 
     private final List<Binding> bindings=new ArrayList<>();
 
+    public Bindings() {}
+
+    public Bindings(Binding...b) {
+        add(b);
+    }
+
     /**
      * Number of bindings
      */
@@ -74,7 +80,7 @@ public class Bindings {
             if(b.getDir()==Binding.Dir.IN||
                b.getDir()==Binding.Dir.INOUT) {
                 Value v=b.getValue(ctx);
-                ctx.getDialect().setParameter(stmt,index,b.getJdbcType(),v);
+                ctx.getDialect().setParameter(stmt,index,b.getJdbcType(),v==null?null:v.getValue());
             }
             index++;
         }

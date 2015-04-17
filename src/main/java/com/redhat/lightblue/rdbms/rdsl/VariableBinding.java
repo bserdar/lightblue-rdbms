@@ -36,6 +36,13 @@ public class VariableBinding extends Binding {
         this(var,dir,null);
     }
 
+    /**
+     * Creates an IN binding
+     */
+    public VariableBinding(Path var) {
+        this(var,Dir.IN,null);
+    }
+
     public Path getVar() {
         return var;
     }

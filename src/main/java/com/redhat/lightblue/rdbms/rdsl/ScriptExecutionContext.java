@@ -68,7 +68,10 @@ public class ScriptExecutionContext implements VariableAccessor {
         scope=new TopLevelVariableAccessor();
         this.parent=parentScope;       
         this.opFactory=factory;
-        this.dialect=parentScope==null?null:parentScope.dialect;
+        if(parentScope!=null) {
+            this.dialect=parentScope.dialect;
+            this.connection=parentScope.connection;
+        }
     }
 
     public ScriptOperationFactory getOperationFactory() {

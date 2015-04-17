@@ -26,6 +26,9 @@ import java.util.NoSuchElementException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.rdbms.dialect.Dialect;
@@ -39,6 +42,8 @@ import com.redhat.lightblue.rdbms.dialect.Dialect;
  * result set.
  */
 public class ResultSetAdapter implements ListValue {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(ResultSetAdapter.class);
 
     private final ResultSet rs;
     private final ResultSetMetaData rsmd;
@@ -58,13 +63,11 @@ public class ResultSetAdapter implements ListValue {
     
     @Override
     public boolean isEmpty() {
+        LOGGER.debug("isEmpty: fetchedRows.size={} terminated={}",fetchedRows.size(),terminated);
         if(fetchedRows.isEmpty()) {
-            if(terminated)
-                return true;
-            else {
+            if(!terminated)
                 retrieveNextRow();
-                return !fetchedRows.isEmpty();
-            } 
+            return terminated;
         } else
             return false;
     }
@@ -111,12 +114,13 @@ public class ResultSetAdapter implements ListValue {
      * Retrieves the next row from the result set
      */
     private boolean retrieveNextRow() {
+        LOGGER.debug("retrieveNextRow begin: fetchedRows.size={} terminated={}",fetchedRows.size(),terminated);
         try {
             if(terminated)
                 return false;
             else {
                 if(fetchedRows.isEmpty()) {
-                    if(rs.first()) {
+                    if(rs.next()) {
                         retrieveRow();
                     } else {
                         terminated=true;
@@ -134,6 +138,7 @@ public class ResultSetAdapter implements ListValue {
         } catch (Exception x) {
             throw Error.get(ScriptErrors.ERR_JDBC_ERROR,x);
         }
+        LOGGER.debug("retrieveNextRow end: fetchedRows.size={} terminated={}",fetchedRows.size(),terminated);
         return terminated;
     }
 
@@ -149,6 +154,7 @@ public class ResultSetAdapter implements ListValue {
                 row.add(columnValue);
             }
             fetchedRows.add(new Value(new TempVarListValueAdapter(row)));
+            LOGGER.debug("retrieveRow end: fetchedRows.size={} terminated={}",fetchedRows.size(),terminated);
         } catch (Error e) {
             throw e;
         } catch (Exception x) {

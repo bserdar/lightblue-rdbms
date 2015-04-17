@@ -18,9 +18,6 @@
  */
 package com.redhat.lightblue.rdbms.dialect;
 
-public final class DialectErrors {
-    public static final String ERR_CANNOT_BIND="rdbms:dialect:cannot-bind-value";
-    public static final String ERR_UNSUPPORTED_TYPE="rdbms:dialect:unsupported-type";
-    public static final String ERR_CANNOT_REGISTER_OUT_PARAM="rdbms:dialect:cannot-register-out-param";
+public class OracleDialect extends AbstractDialect {
 }
 

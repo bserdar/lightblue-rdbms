@@ -169,6 +169,15 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     @Override
+    public void registerOutParameter(CallableStatement stmt,int index,int sqlType) {
+        try {
+            stmt.registerOutParameter(index,sqlType);
+        } catch (Exception e) {
+            throw Error.get(DialectErrors.ERR_CANNOT_REGISTER_OUT_PARAM,Integer.toString(sqlType));
+        }
+    }
+
+    @Override
     public Value getOutValue(CallableStatement stmt,int index,int sqlType) {
         try {
             switch(sqlType) {
