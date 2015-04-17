@@ -71,44 +71,44 @@ public class ExecuteSqlClauseTest {
         conn.createStatement().execute("drop table testtable");
     }
 
-    // @Test
-    // public void insertTest() throws Exception {
-    //     EntityMetadata md=TestUtil.getMd("testMetadata.json");
-    //     JsonDoc doc=TestUtil.getDoc("sample1.json");
-    //     ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
-    //     ctx.setConnection(conn);
-    //     ctx.setDialect(new OracleDialect());
+    @Test
+    public void insertTest() throws Exception {
+        EntityMetadata md=TestUtil.getMd("testMetadata.json");
+        JsonDoc doc=TestUtil.getDoc("sample1.json");
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForInsertion(TestUtil.getTables(md),doc,md,null);
+        ctx.setConnection(conn);
+        ctx.setDialect(new OracleDialect());
         
-    //     Script s=new Script(new ExecuteSqlClauseOperation(ExecuteSqlClauseOperation.NAMEQ,"insert into testtable values (?,?,?,?,?)",
-    //                                                       new Bindings(new VariableBinding(new Path("id")),
-    //                                                                    new VariableBinding(new Path("$document.field1")),
-    //                                                                    new VariableBinding(new Path("blah")),
-    //                                                                    new ValueBinding(new Value(ValueType.primitive,new Date())),
-    //                                                                    new VariableBinding(new Path("x")))));
+        Script s=new Script(new ExecuteSqlClauseOperation(ExecuteSqlClauseOperation.NAMEQ,"insert into testtable values (?,?,?,?,?)",
+                                                          new Bindings(new VariableBinding(new Path("id")),
+                                                                       new VariableBinding(new Path("$document.field1")),
+                                                                       new VariableBinding(new Path("blah")),
+                                                                       new ValueBinding(new Value(ValueType.primitive,new Date())),
+                                                                       new VariableBinding(new Path("x")))));
 
-    //     for(int i=0;i<100;i++) {
-    //         ctx.setVarValue(new Path("id"),new Value(i));
-    //         ctx.setVarValue(new Path("x"),new Value(2*i));
-    //         ctx.setVarValue(new Path("blah"),new Value("blah"+i));
-    //         s.execute(ctx);
-    //     }
+        for(int i=0;i<100;i++) {
+            ctx.setVarValue(new Path("id"),new Value(i));
+            ctx.setVarValue(new Path("x"),new Value(2*i));
+            ctx.setVarValue(new Path("blah"),new Value("blah"+i));
+            s.execute(ctx);
+        }
 
-    //     PreparedStatement stmt=conn.prepareStatement("select count(*) from testtable");
-    //     ResultSet rs=stmt.executeQuery();
-    //     rs.next();
-    //     Assert.assertEquals(100,rs.getInt(1));
+        PreparedStatement stmt=conn.prepareStatement("select count(*) from testtable");
+        ResultSet rs=stmt.executeQuery();
+        rs.next();
+        Assert.assertEquals(100,rs.getInt(1));
 
-    //     stmt=conn.prepareStatement("select id,col1,col2,col3,col4 from testtable order by id asc");
-    //     rs=stmt.executeQuery();
-    //     int i=0;
-    //     while(rs.next()) {
-    //         Assert.assertEquals(i,rs.getInt(1));
-    //         Assert.assertEquals("value1",rs.getString(2));
-    //         Assert.assertEquals("blah"+i,rs.getString(3));
-    //         Assert.assertEquals(2*i,rs.getInt(5));
-    //         i++;
-    //     } 
-    // }
+        stmt=conn.prepareStatement("select id,col1,col2,col3,col4 from testtable order by id asc");
+        rs=stmt.executeQuery();
+        int i=0;
+        while(rs.next()) {
+            Assert.assertEquals(i,rs.getInt(1));
+            Assert.assertEquals("value1",rs.getString(2));
+            Assert.assertEquals("blah"+i,rs.getString(3));
+            Assert.assertEquals(2*i,rs.getInt(5));
+            i++;
+        } 
+    }
 
     @Test
     public void queryTest() throws Exception {
