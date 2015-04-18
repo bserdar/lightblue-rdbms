@@ -91,8 +91,6 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
             FieldRDBMSInfo fieldInfo=new FieldRDBMSInfo();
             fieldInfo.setTableName(p.getStringProperty(node,"table"));
             fieldInfo.setColumnName(p.getStringProperty(node,"column"));
-            fieldInfo.setReadFilter(p.getStringProperty(node,"readFilter"));
-            fieldInfo.setWriteFilter(p.getStringProperty(node,"writeFilter"));
             LOGGER.debug("Parsed field mapping for {}.{}",fieldInfo.getTableName(),fieldInfo.getColumnName());
             return fieldInfo;
         }
@@ -106,10 +104,6 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
                 p.putString(emptyNode,"table",r.getTableName());
             if(r.getColumnName()!=null)
                 p.putString(emptyNode,"column",r.getColumnName());
-            if(r.getReadFilter()!=null)
-                p.putString(emptyNode,"readFilter",r.getReadFilter());
-            if(r.getWriteFilter()!=null)
-                p.putString(emptyNode,"writeFilter",r.getWriteFilter());
         } else if(object instanceof Map) {
             Object array=p.newArrayField(emptyNode,"tables");
             for(Table table: ((Map<String,Table>)object).values() ) {
@@ -184,12 +178,34 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
                 throw Error.get(ERR_INVALID_JDBC_TYPE,x);
             c.setJdbcType(t);
         }
+        x=p.getStringProperty(colNode,"readFilter");
+        if(x==null)
+            x="?";
+        c.setReadFilter(x);
+        x=p.getStringProperty(colNode,"writeFilter");
+        if(x==null)
+            x="?";
+        c.setWriteFilter(x);
     }
 
     private T convertTable(MetadataParser<T> p,T emptyNode,Table table) {
         T tableNode=p.newNode();
 
         p.putString(tableNode,"table",table.getName());
+        Object columns=p.newArrayField(emptyNode,"columns");
+        for(Column c:table.getColumns()) {
+            T col=p.newNode();
+            p.putString(col,"column",c.getName());
+            if(c.getJdbcType()!=null)
+                p.putString(col,"jdbcType",AbstractDialect.jdbcTypeToString(c.getJdbcType()));
+            if(c.getNativeType()!=null)
+                p.putString(col,"nativeType",c.getNativeType());
+            if(!"?".equals(c.getReadFilter()))
+                p.putString(col,"readFilter",c.getReadFilter());
+            if(!"?".equals(c.getWriteFilter()))
+                p.putString(col,"writeFilter",c.getWriteFilter());
+            p.addObjectToArray(columns,col);
+        }
         PrimaryKey primaryKey=table.getPrimaryKey();
         if(primaryKey!=null) {
             Object pkey=p.newArrayField(emptyNode,"primaryKey");
@@ -208,6 +224,7 @@ public class RDBMSPropertyParser<T> extends PropertyParser<T> {
                 Object cols=p.newArrayField(fkey,"columns");
                 for(String x:f.getSourceColumns())
                     p.addStringToArray(cols,x);
+                p.addObjectToArray(fkeys,fkey);
             }
         }
 

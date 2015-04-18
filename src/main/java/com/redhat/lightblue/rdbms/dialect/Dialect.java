@@ -24,6 +24,9 @@ import java.sql.ResultSet;
 
 import com.redhat.lightblue.rdbms.rdsl.Value;
 
+import com.redhat.lightblue.rdbms.tables.Table;
+import com.redhat.lightblue.rdbms.tables.Column;
+
 /**
  * The interface that defines how SQL translations are done based on
  * the actual database backend
@@ -60,5 +63,10 @@ public interface Dialect {
      * Retrieves a value from a result set
      */
     Value getResultSetValue(ResultSet rs,int index);
+
+    /**
+     * Writes an INSERT statement for the given table and columns
+     */
+    String getInsertRowStmt(Table table,Column[] columns);
 }
 

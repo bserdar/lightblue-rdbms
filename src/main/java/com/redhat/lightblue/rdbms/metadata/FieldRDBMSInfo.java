@@ -34,20 +34,14 @@ public class FieldRDBMSInfo implements Serializable {
 
     private String tableName;
     private String columnName;
-    private String writeFilter;
-    private String readFilter;
 
     public FieldRDBMSInfo() {
     }
 
     public FieldRDBMSInfo(String tableName,
-                          String columnName,
-                          String writeFilter,
-                          String readFilter) {
+                          String columnName) {
         this.tableName=tableName;
         this.columnName=columnName;
-        this.writeFilter=writeFilter;
-        this.readFilter=readFilter;
     }
 
     public  String getTableName() {
@@ -66,19 +60,4 @@ public class FieldRDBMSInfo implements Serializable {
         columnName=s;
     }
 
-    public String getWriteFilter() {
-        return writeFilter;
-    }
-
-    public void setWriteFilter(String s) {
-        writeFilter=s;
-    }
-
-    public String getReadFilter() {
-        return readFilter;
-    }
-
-    public void setReadFilter(String s) {
-        readFilter=s;
-    }
 }

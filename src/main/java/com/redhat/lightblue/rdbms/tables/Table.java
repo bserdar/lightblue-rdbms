@@ -79,6 +79,17 @@ public class Table {
         return cols.toArray(new Column[cols.size()]);
     }
 
+    /**
+     * Returns the columns that are non-null
+     */
+    public Column[] getNonNullColumns() {
+        List<Column> l=new ArrayList<>(columns.size());
+        for(Column c:columns.values())
+            if(c.getValue()!=null)
+                l.add(c);
+        return l.toArray(new Column[l.size()]);
+    }
+
     public PrimaryKey getPrimaryKey() {
         return primaryKey;
     }

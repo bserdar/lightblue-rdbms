@@ -28,6 +28,8 @@ public class Column {
     private Table table;
     private Integer jdbcType;
     private String nativeType;
+    private String readFilter="?";
+    private String writeFilter="?";
 
     public Column(Table table,String name) {
         this.table=table;
@@ -54,7 +56,7 @@ public class Column {
     /**
      * The SQL type of the column (java.sql.Types). Can be null, meaning unspecified
      */
-    public Integer getJdcType() {
+    public Integer getJdbcType() {
         return jdbcType;
     }
 
@@ -77,6 +79,34 @@ public class Column {
      */
     public void setNativeType(String s) {
         nativeType=s;
+    }
+
+    /**
+     * The expression to be used for reading the column
+     */
+    public String getReadFilter() {
+        return readFilter;
+    }
+
+    /**
+     * The expression to be used for reading the column
+     */
+    public void setReadFilter(String s) {
+        readFilter=s;
+    }
+
+    /**
+     * The expression to be used for writing the column
+     */
+    public String getWriteFilter() {
+        return writeFilter;
+    }
+
+    /**
+     * The expression to be used for writing the column
+     */
+    public void setWriteFilter(String s) {
+        writeFilter=s;
     }
 
     @Override

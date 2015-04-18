@@ -81,6 +81,8 @@ public final class ScriptErrors {
     public static final String ERR_OUT_PARAMETER_NEEDS_TYPE="rdbms:script:bind:out-parameters-need-jdbc-type";
     public static final String ERR_OUT_PARAMETER_NEEDS_VARIABLE_BINDING="rdbms:script:bind:out-parameters-need-variable-binding";
     public static final String ERR_JDBC_ERROR="rdbms:script:jdbc-error";
+    public static final String ERR_NOT_A_TABLE="rdbms:script:not-a-table";
+    public static final String ERR_ALL_COLS_NULL="rdbms:script:all-table-columns-are-null";
 
     private ScriptErrors() {}
 }

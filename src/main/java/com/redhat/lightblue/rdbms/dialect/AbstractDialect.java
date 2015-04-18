@@ -43,6 +43,9 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.rdbms.rdsl.Value;
 import com.redhat.lightblue.rdbms.rdsl.ValueType;
 
+import com.redhat.lightblue.rdbms.tables.Table;
+import com.redhat.lightblue.rdbms.tables.Column;
+
 public abstract class AbstractDialect implements Dialect {
 
     private static final class JDBCSqlTypeMap {
@@ -98,11 +101,12 @@ public abstract class AbstractDialect implements Dialect {
 
 
     /**
-     * This basic implementation ignores the sql type information for
-     * most cases, and uses the appropriate setParameter method based
-     * on the Java class type of 'value'. If 'value' is null and sqlType is
-     * given, the PreparedStatement.setNull method is called,
-     * otherwise null value is set by using setObject()
+     * This basic implementation uses the sqlType information if it is
+     * non-null. If sqlType is null, the appropriate setParameter
+     * method is chosen based on the Java class type of the value. If
+     * 'value' is null and sqlType is given, the
+     * PreparedStatement.setNull method is called, otherwise null
+     * value is set by using setObject()
      */
     @Override
     public void setParameter(PreparedStatement stmt,int index,Integer sqlType,Object value) {
@@ -112,7 +116,9 @@ public abstract class AbstractDialect implements Dialect {
                     stmt.setObject(index,null);
                 else
                     stmt.setNull(index,sqlType);
-            } else if(value instanceof BigDecimal) {
+            } if(sqlType!=null) {
+                stmt.setObject(index,value,sqlType);
+            } else if (value instanceof BigDecimal) {
                 stmt.setBigDecimal(index,(BigDecimal)value);
             } else if(value instanceof BigInteger) {
                 stmt.setString(index,value.toString());
@@ -305,6 +311,32 @@ public abstract class AbstractDialect implements Dialect {
         throw Error.get(DialectErrors.ERR_UNSUPPORTED_TYPE,Integer.toString(sqlType));
     }
 
+    @Override
+    public String getInsertRowStmt(Table table,Column[] columns) {
+        StringBuilder bld=new StringBuilder(256);
+        bld.append("insert into ").append(table.getName()).append(" (");
+        boolean first=true;
+        for(Column c:columns) {
+            if(first)
+                first=false;
+            else
+                bld.append(',');
+            bld.append(c.getName());
+        }
+        bld.append(") values (");
+        first=true;
+        for(Column c:columns) {
+            if(first)
+                first=false;
+            else
+                bld.append(',');
+            bld.append(c.getWriteFilter());
+        }
+        bld.append(')');
+        return bld.toString();
+    }
+    
+
     /**
      * Parses a JDBC sql type from string
      *
@@ -322,6 +354,16 @@ public abstract class AbstractDialect implements Dialect {
             if(ix>=0)
                 return JDBCSQLTYPEMAP[ix].type;
         }
+        return null;
+    }
+
+    /**
+     * Returns the string representation of the JDBC type
+     */
+    public static String jdbcTypeToString(int type) {
+        for(JDBCSqlTypeMap x:JDBCSQLTYPEMAP)
+            if(x.type==type)
+                return x.name;
         return null;
     }
 }
