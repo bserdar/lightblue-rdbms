@@ -42,12 +42,45 @@ import com.redhat.lightblue.rdbms.tables.Column;
 
 import com.redhat.lightblue.rdbms.metadata.FieldRDBMSInfo;
 
-public class MapOperation implements ScriptOperation, ScriptOperationFactory {
+/**
+ * Transfers values of a table to a part of a document, or vice versa
+ * <pre>
+ *    { $map : { dest: table, source: var } }
+ *    { $map:  { dest: var, source: table } }
+ * </pre>
+ */
+public class MapOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(MapOperation.class);
 
     public static final String NAME="$map";
     public static final String NAMES[]={NAME};
+
+    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
+            @Override
+            public String[] operationNames() {
+                return NAMES;
+            }
+            
+            @Override
+            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+                MapOperation newOp=new MapOperation();
+                ObjectNode args=(ObjectNode)node.get(NAME);
+                JsonNode x=args.get("dest");
+                if(x!=null) {
+                    newOp.dest=new Path(x.asText());
+                } else {
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
+                }
+                x=args.get("source");
+                if(x!=null) {
+                    newOp.source=new Path(x.asText());
+                } else {
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"source");
+                }
+                return newOp;
+            }
+        };
 
     private Path source;
     private Path dest;
@@ -71,6 +104,14 @@ public class MapOperation implements ScriptOperation, ScriptOperationFactory {
     public MapOperation(Path source,Path dest) {
         this.source=source;
         this.dest=dest;
+    }
+
+    public Path getSource() {
+        return source;
+    }
+
+    public Path getDest() {
+        return dest;
     }
 
     @Override
@@ -178,27 +219,4 @@ public class MapOperation implements ScriptOperation, ScriptOperationFactory {
         }
     }
 
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        MapOperation newOp=new MapOperation();
-        ObjectNode args=(ObjectNode)node.get(NAME);
-        JsonNode x=args.get("dest");
-        if(x!=null) {
-            newOp.dest=new Path(x.asText());
-        } else {
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
-        }
-        x=args.get("source");
-        if(x!=null) {
-            newOp.source=new Path(x.asText());
-        } else {
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"source");
-        }
-        return newOp;
-    }
 }

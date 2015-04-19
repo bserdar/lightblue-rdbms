@@ -91,4 +91,13 @@ public class MapOperationTest {
         Assert.assertEquals("4",ctx.getVarValue(new Path("$tables.schema.table.col6")).toString());
         Assert.assertEquals("false",ctx.getVarValue(new Path("$tables.schema.table.col7")).toString());
     }
+
+    @Test
+    public void parseTest() throws Exception {        
+        MapOperation n=(MapOperation)MapOperation.FACTORY.
+            getOperation(null,TestUtil.json("{'$map' : { 'dest':'$tables.testtable', 'source': '$document.var' } }"));
+        
+        Assert.assertEquals(new Path("$tables.testtable"),n.getDest());
+        Assert.assertEquals(new Path("$document.var"),n.getSource());
+    }
 }

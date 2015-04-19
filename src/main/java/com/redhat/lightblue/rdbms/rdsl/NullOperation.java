@@ -29,19 +29,52 @@ import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.rdbms.tables.Table;
 
-public class NullOperation implements ScriptOperation, ScriptOperationFactory {
+/**
+ * Sets a value or a group of values to null
+ * <pre>
+ *    { $null : { dest: var } }
+ * </pre>
+ *
+ * If 'dest' is a variable, sets it to null. If 'dest' is a table,
+ * sets all column values of that table to null.
+ */
+public class NullOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(NullOperation.class);
 
     public static final String NAME="$null";
     public static final String NAMES[]={NAME};
 
+    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
+            @Override
+            public String[] operationNames() {
+                return NAMES;
+            }
+            
+            @Override
+            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+                NullOperation newOp=new NullOperation();
+                ObjectNode args=(ObjectNode)node.get(NAME);
+                JsonNode x=args.get("dest");
+                if(x!=null) {
+                    newOp.dest=new Path(x.asText());
+                } else {
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
+                }
+                return newOp;
+            }
+        };
+    
     private Path dest;
 
     public NullOperation() {}
 
     public NullOperation(Path dest) {
         this.dest=dest;
+    }
+
+    public Path getDest() {
+        return dest;
     }
 
     @Override
@@ -67,21 +100,4 @@ public class NullOperation implements ScriptOperation, ScriptOperationFactory {
         return Value.NULL_VALUE;
     }
 
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        NullOperation newOp=new NullOperation();
-        ObjectNode args=(ObjectNode)node.get(NAME);
-        JsonNode x=args.get("dest");
-        if(x!=null) {
-            newOp.dest=new Path(x.asText());
-        } else {
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
-        }
-        return newOp;
-    }
 }

@@ -26,11 +26,54 @@ import com.redhat.lightblue.util.Error;
 
 /**
  * Set the value of lvar using current value of rvar, or the result of the script, or the value
+ * <pre>
+ *    { $set: { dest: l-variable, var: r-variable } }
+ *    { $set: { dest: l-variable, value: value } }
+ *    { $set: { dest: l-variable, valueof: script } }
+ * </pre>
  */
-public class SetOperation implements ScriptOperation, ScriptOperationFactory {
+public class SetOperation implements ScriptOperation {
 
     public static final String NAME="$set";
     public static final String NAMES[]={NAME};
+
+    /**
+     * Parses $set operation instances
+     */
+    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
+            @Override
+            public String[] operationNames() {
+                return NAMES;
+            }
+            
+            @Override
+            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+                SetOperation newOp=new SetOperation();
+                ObjectNode configNode=(ObjectNode)node.get(NAME);
+                JsonNode x=configNode.get("dest");
+                if(x!=null)
+                    newOp.setLVariable(new Path(x.asText()));
+                else
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
+                x=configNode.get("var");
+                if(x!=null) {
+                    newOp.setRVariable(new Path(x.asText()));
+                } else {
+                    x=configNode.get("value");
+                    if(x!=null) {
+                        newOp.setRValue(Value.toValue(x));
+                    } else {
+                        x=configNode.get("valueOf");
+                        if(x!=null) {
+                            newOp.rScript=Script.parse(reg,x);
+                        } else {
+                            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var/value/valueOf");
+                        }
+                    }
+                }
+                return newOp;
+            }
+        };
     
     private Path lVariable;
 
@@ -39,21 +82,32 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
     private Path rVariable;
     private Value rValue;
 
-
+    /**
+     * Default Ctor
+     */
     public SetOperation() {}
 
+    /**
+     * Constructs a set operation that sets the variable from the result of the script
+     */
     public SetOperation(Path lvalue,
                         ScriptOperation rvalue) {
         this.lVariable=lvalue;
         this.rScript=rvalue;
     }
 
+    /**
+     * Constructs a set operation that sets the lvalue from the value of rvalue
+     */
     public SetOperation(Path lvalue,
                         Path rvalue) {
         this.lVariable=lvalue;
         this.rVariable=rvalue;
     }
 
+    /**
+     * Constructs a set operation that set the lvalue from rvalue
+     */
     public SetOperation(Path lvalue,
                         Value rvalue) {
         this.lVariable=lvalue;
@@ -65,34 +119,58 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
         return NAME;
     }
 
+    /**
+     * l-value (the destination variable)
+     */
     public Path getLVariable() {
         return lVariable;
     }
 
+    /**
+     * l-value (the destination variable)
+     */
     public void setLVariable(Path p) {
         lVariable=p;
     }
 
+    /**
+     * r-script ( dest: lvalue, valueOf: script })
+     */
     public ScriptOperation getRScript() {
         return rScript;
     }
 
+    /**
+     * r-script ( dest: lvalue, valueOf: script })
+     */
     public void setRScript(Script s) {
         rScript=s;
     }
 
+    /**
+     * r-variable { dest: lvalue, var: rvariable }
+     */
     public Path getRVariable() {
         return rVariable;
     }
 
+    /**
+     * r-variable { dest: lvalue, var: rvariable }
+     */
     public void setRVariable(Path p) {
         rVariable=p;
     }
 
+    /**
+     * r-value ( dest: lvalue, value: rvalue }
+     */
     public Value getRValue() {
         return rValue;
     }
 
+    /**
+     * r-value ( dest: lvalue, value: rvalue }
+     */
     public void setRValue(Value v) {
         rValue=v;
     }
@@ -113,36 +191,4 @@ public class SetOperation implements ScriptOperation, ScriptOperationFactory {
         return result;
     }
     
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        SetOperation newOp=new SetOperation();
-        ObjectNode configNode=(ObjectNode)node.get(NAME);
-        JsonNode x=configNode.get("dest");
-        if(x!=null)
-            newOp.setLVariable(new Path(x.asText()));
-        else
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
-        x=configNode.get("var");
-        if(x!=null) {
-            newOp.setRVariable(new Path(x.asText()));
-        } else {
-            x=configNode.get("value");
-            if(x!=null) {
-                newOp.setRValue(Value.toValue(x));
-            } else {
-                x=configNode.get("valueOf");
-                if(x!=null) {
-                    rScript=Script.parse(reg,x);
-                } else {
-                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var/value/valueOf");
-                }
-            }
-        }
-        return newOp;
-    }
 }

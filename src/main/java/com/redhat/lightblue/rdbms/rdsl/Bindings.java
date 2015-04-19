@@ -152,6 +152,9 @@ public class Bindings {
                         dir=Binding.Dir.IN;
                     ret.bindings.add(new VariableBinding(var,dir,jdbcType));
                 } else {
+                    x=on.get("value");
+                    if(x==null)
+                        throw Error.get(ScriptErrors.ERR_INVALID_VALUE,on.toString());
                     // value binding, can only by IN
                     ret.bindings.add(new ValueBinding(Value.toValue(x),jdbcType));
                 }

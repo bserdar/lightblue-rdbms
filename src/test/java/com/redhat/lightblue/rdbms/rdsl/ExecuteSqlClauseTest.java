@@ -165,4 +165,22 @@ public class ExecuteSqlClauseTest {
         }
         Assert.assertEquals(96,n);
     }
+
+    @Test
+    public void parseTest() throws Exception {
+        ExecuteSqlClauseOperation e=(ExecuteSqlClauseOperation)ExecuteSqlClauseOperation.FACTORY.
+            getOperation(null,
+                         TestUtil.json("{'sql': { 'clause':'select', 'bindings':['$document.field3',{'value':true},{'var':'somevar','dir':'out'}]}}"));
+        
+        Assert.assertEquals("select",e.getClause());
+        Bindings bindings=e.getBindings();
+        Assert.assertEquals(3,bindings.size());
+        Assert.assertTrue(bindings.get(0) instanceof VariableBinding);
+        Assert.assertEquals(new Path("$document.field3"),((VariableBinding)bindings.get(0)).getVar());
+        Assert.assertEquals(Binding.Dir.IN,((VariableBinding)bindings.get(0)).getDir());
+        Assert.assertTrue(bindings.get(1) instanceof ValueBinding);
+        Assert.assertTrue(bindings.get(2) instanceof VariableBinding);
+        Assert.assertEquals(Binding.Dir.OUT,bindings.get(2).getDir());
+    }
+
 }

@@ -34,7 +34,12 @@ public class OperationRegistry {
      * Constructs the registry with all known operations
      */
     public OperationRegistry() {
-        add(new SetOperation());
+        add(ExecuteSqlClauseOperation.FACTORY);
+        add(ForEachOperation.FACTORY);
+        add(InsertRowOperation.FACTORY);
+        add(MapOperation.FACTORY);
+        add(NullOperation.FACTORY);
+        add(SetOperation.FACTORY);
     }
 
     /**

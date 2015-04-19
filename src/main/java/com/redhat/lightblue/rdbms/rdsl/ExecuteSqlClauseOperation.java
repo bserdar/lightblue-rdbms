@@ -31,13 +31,44 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Error;
 
-public class ExecuteSqlClauseOperation implements ScriptOperation, ScriptOperationFactory {
+public class ExecuteSqlClauseOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ExecuteSqlClauseOperation.class);
 
     public static final String NAMEQ="sql";
     public static final String NAMECALL="sqlcall";
     public static final String NAMES[]={NAMEQ,NAMECALL};
+
+    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {     
+            @Override
+            public String[] operationNames() {
+                return NAMES;
+            }
+            
+            @Override
+            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+                ExecuteSqlClauseOperation op;
+                ObjectNode argNode=(ObjectNode)node.get(NAMEQ);
+                if(argNode==null) {
+                    argNode=(ObjectNode)node.get(NAMECALL);
+                    op=new ExecuteSqlClauseOperation(NAMECALL);
+                } else {
+                    op=new ExecuteSqlClauseOperation(NAMEQ);
+                }
+                
+                JsonNode x=argNode.get("clause");
+                if(x==null)
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"clause");
+                op.clause=x.asText();
+                
+                x=argNode.get("bindings");
+                if(x instanceof ArrayNode) {
+                    op.bindings=Bindings.parseBindings( (ArrayNode)x); 
+                } else if(x!=null)
+                    throw Error.get(ScriptErrors.ERR_MALFORMED_OPERATION,x.toString());
+                return op;
+            }
+        };
 
     private final String name;
     private String clause;
@@ -51,6 +82,14 @@ public class ExecuteSqlClauseOperation implements ScriptOperation, ScriptOperati
         this(name);
         this.clause=clause;
         this.bindings=bindings;
+    }
+
+    public String getClause() {
+        return clause;
+    }
+
+    public Bindings getBindings() {
+        return bindings;
     }
 
     @Override
@@ -118,35 +157,5 @@ public class ExecuteSqlClauseOperation implements ScriptOperation, ScriptOperati
             LOGGER.error("Error while executing "+clause,x);
             throw Error.get(ScriptErrors.ERR_JDBC_ERROR,x.toString());
         }
-    }
-        
-    
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        ExecuteSqlClauseOperation op;
-        ObjectNode argNode=(ObjectNode)node.get(NAMEQ);
-        if(argNode==null) {
-            argNode=(ObjectNode)node.get(NAMECALL);
-            op=new ExecuteSqlClauseOperation(NAMECALL);
-        } else {
-            op=new ExecuteSqlClauseOperation(NAMEQ);
-        }
-            
-        JsonNode x=argNode.get("clause");
-        if(x==null)
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"clause");
-        op.clause=x.asText();
-
-        x=argNode.get("bindings");
-        if(x instanceof ArrayNode) {
-            op.bindings=Bindings.parseBindings( (ArrayNode)x); 
-        } else if(x!=null)
-            throw Error.get(ScriptErrors.ERR_MALFORMED_OPERATION,x.toString());
-        return op;
     }
 }

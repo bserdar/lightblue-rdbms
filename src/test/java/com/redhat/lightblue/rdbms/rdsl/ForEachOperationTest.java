@@ -96,4 +96,13 @@ public class ForEachOperationTest {
         
     }
 
+    @Test
+    public void parseTest() throws Exception {
+        ForEachOperation f=(ForEachOperation)ForEachOperation.FACTORY.
+            getOperation(null,
+                         TestUtil.json("{'$foreach':{'var':'list','elem':'elem'}}"));
+        Assert.assertEquals(new Path("list"),f.getVar());
+        Assert.assertEquals(new Path("elem"),f.getElemVar());
+    }
+
 }

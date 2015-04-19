@@ -66,5 +66,9 @@ public class TestUtil extends AbstractJsonNodeTest {
     public static Map<String,Table> getTables(EntityMetadata md) throws Exception {
         return (Map<String,Table>)md.getEntitySchema().getProperties().get("rdbms");
     }
+
+    public static ObjectNode json(String s) throws Exception {
+        return (ObjectNode)JsonUtils.json(s.replaceAll("\'","\""));
+    }
     
 }

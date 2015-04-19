@@ -93,4 +93,19 @@ public class SetOperationTest {
         System.out.println(ctx.getVarValue(new Path("test.nf7")).getValue());
         Assert.assertEquals("nnvalue1",ctx.getVarValue(new Path("test.nf7.nnf1")).getValue());
     }
+
+    @Test
+    public void parseTest() throws Exception {
+        
+        SetOperation s=(SetOperation)SetOperation.FACTORY.
+            getOperation(null,TestUtil.json("{'$set' : { 'dest':'$tables.testtable', 'var':'$document.var' } }"));
+        
+        Assert.assertEquals(new Path("$tables.testtable"),s.getLVariable());
+        Assert.assertEquals(new Path("$document.var"),s.getRVariable());
+        
+        s=(SetOperation)SetOperation.FACTORY.
+            getOperation(null,TestUtil.json("{'$set' : { 'dest':'$tables.testtable', 'value':true } }"));
+        Assert.assertEquals(new Path("$tables.testtable"),s.getLVariable());
+        Assert.assertTrue((Boolean)s.getRValue().getValue());
+    }
 }

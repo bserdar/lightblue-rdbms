@@ -71,4 +71,12 @@ public class NullOperationTest {
         Assert.assertNull(ctx.getVarValue(new Path("$tables.schema.table.col7")).getValue());
     }
 
+    @Test
+    public void parseTest() throws Exception {
+        
+        NullOperation n=(NullOperation)NullOperation.FACTORY.
+            getOperation(null,TestUtil.json("{'$null' : { 'dest':'$tables.testtable' } }"));
+        
+        Assert.assertEquals(new Path("$tables.testtable"),n.getDest());
+    }
 }

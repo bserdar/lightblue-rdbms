@@ -29,16 +29,54 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
-public class ForEachOperation implements ScriptOperation, ScriptOperationFactory {
+/**
+ * Iterates over a list
+ * <pre>
+ *   { $foreach : { var: listVar, elem: name-of-elem-var, do: script } }
+ * </pre>
+ *
+ * listVar is a list. For every element of listVar, name-of-elem-var
+ * is set to the content of the next element of listVar, and script is
+ * run.
+ */
+public class ForEachOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ForEachOperation.class);
 
     public static final String NAME="$foreach";
     public static final String NAMES[]={NAME};
 
+    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
+            @Override
+            public String[] operationNames() {
+                return NAMES;
+            }
+            
+            @Override
+            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+                ForEachOperation newOp=new ForEachOperation();
+                ObjectNode args=(ObjectNode)node.get(NAME);
+                JsonNode x=args.get("var");
+                if(x!=null) {
+                    newOp.var=new Path(x.asText());
+                } else {
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var");
+                }
+                x=args.get("elem");
+                if(x!=null) {
+                    newOp.elemVar=new Path(x.asText());
+                } 
+                x=args.get("do");
+                if(x!=null) {
+                    newOp.doit=Script.parse(reg,x);
+                }
+                return newOp;
+            }
+        };
+
     private Path var;
     private Path elemVar;
-    private Script doit;
+    private ScriptOperation doit;
 
     public ForEachOperation() {}
 
@@ -53,6 +91,18 @@ public class ForEachOperation implements ScriptOperation, ScriptOperationFactory
     @Override
     public String getName() {
         return NAME;
+    }
+
+    public Path getVar() {
+        return var;
+    }
+
+    public Path getElemVar() {
+        return elemVar;
+    }
+
+    public ScriptOperation getDoIt() {
+        return doit;
     }
 
     @Override
@@ -85,29 +135,4 @@ public class ForEachOperation implements ScriptOperation, ScriptOperationFactory
         return ret;
     }
 
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        ForEachOperation newOp=new ForEachOperation();
-        ObjectNode args=(ObjectNode)node.get(NAME);
-        JsonNode x=args.get("var");
-        if(x!=null) {
-            newOp.var=new Path(x.asText());
-        } else {
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var");
-        }
-        x=args.get("elem");
-        if(x!=null) {
-            newOp.elemVar=new Path(x.asText());
-        } 
-        x=args.get("do");
-        if(x!=null) {
-            newOp.doit=Script.parse(reg,x);
-        }
-        return newOp;
-    }
 }

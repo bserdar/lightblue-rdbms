@@ -35,15 +35,41 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.rdbms.tables.Table;
 import com.redhat.lightblue.rdbms.tables.Column;
 
-public class InsertRowOperation implements ScriptOperation, ScriptOperationFactory {
+/**
+ * Inserts a row to a table
+ * <pre>
+ *   { insert-row: { table: $tables.table } }
+ * </pre>
+ */
+public class InsertRowOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(InsertRowOperation.class);
 
     public static final String NAME="insert-row";
     public static final String NAMES[]={NAME};
 
+    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
+        
+            @Override
+            public String[] operationNames() {
+                return NAMES;
+            }
+            
+            @Override
+            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
+                ObjectNode argNode=(ObjectNode)node.get(NAME);
+                JsonNode x=argNode.get("table");
+                if(x==null)
+                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"table");
+                Path table=new Path(x.asText());
+                return new InsertRowOperation(table);
+            }
+        };
+
     private Path tableName;
     
+    public InsertRowOperation() {}
+
     public InsertRowOperation(Path table) {
         this.tableName=table;
     }
@@ -53,11 +79,15 @@ public class InsertRowOperation implements ScriptOperation, ScriptOperationFacto
         return NAME;
     }
 
+    public Path getTableName() {
+        return tableName;
+    }
+
     @Override
     public Value execute(ScriptExecutionContext ctx) {
         LOGGER.debug("insert {} begin",tableName);
         Value tablev=ctx.getVarValue(tableName);
-        if(tablev.getType()==ValueType.table) 
+        if(tablev.getType()!=ValueType.table) 
             throw Error.get(ScriptErrors.ERR_NOT_A_TABLE,tableName.toString());
 
         Table table=tablev.getTableValue();
@@ -85,20 +115,5 @@ public class InsertRowOperation implements ScriptOperation, ScriptOperationFacto
             LOGGER.error("Error during insertOperation", x);
             throw Error.get(ScriptErrors.ERR_JDBC_ERROR,x.toString());
         }
-    }
-        
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        ObjectNode argNode=(ObjectNode)node.get(NAME);
-        JsonNode x=argNode.get("table");
-        if(x==null)
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"table");
-        Path table=new Path(x.asText());
-        return new InsertRowOperation(table);
     }
 }
