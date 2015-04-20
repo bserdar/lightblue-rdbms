@@ -16,11 +16,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
 
 /**
  * This is an operation of the foem
@@ -33,10 +35,9 @@ import com.redhat.lightblue.util.Path;
  * script. When the grammar requires a script, but passing a variable
  * value is required, use this.
  */
-public class VariableAccessOperation implements ScriptOperation, ScriptOperationFactory {
+public class VariableAccessOperation implements ScriptOperation {
 
     public static final String NAME="var";
-    public static final String NAMES[]={NAME};
     
     private Path var;
 
@@ -44,6 +45,10 @@ public class VariableAccessOperation implements ScriptOperation, ScriptOperation
 
     public VariableAccessOperation(Path var) {
         this.var=var;
+    }
+
+    public Path getVar() {
+        return var;
     }
 
     @Override
@@ -54,15 +59,5 @@ public class VariableAccessOperation implements ScriptOperation, ScriptOperation
     @Override
     public Value execute(ScriptExecutionContext ctx) {
         return ctx.getVarValue(var);
-    }
-    
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        return new VariableAccessOperation(new Path(node.get(NAME).asText()));
-    }
+    }    
 }

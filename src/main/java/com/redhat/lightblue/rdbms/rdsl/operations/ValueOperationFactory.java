@@ -16,32 +16,28 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/**
- * Interface that generates script operation instances from Json
- * nodes. A script operation factory can generate multiple operations.
- */
-public interface ScriptOperationFactory<T extends ScriptOperation> {
+import com.redhat.lightblue.util.Path;
 
-    /**
-     * Returns the names of the operations this factory can generate
-     */
-    String[] operationNames();
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperationFactory;
+import com.redhat.lightblue.rdbms.rdsl.OperationRegistry;
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
 
-    /**
-     * Returns a script operation instance using the given Json node
-     * operation configuration. The operationNode is the object node
-     * of the form:
-     * <pre>
-     *   { "operationName" : { args } }
-     * </pre>
-     * or
-     * <pre>
-     *   { "operationName" : arg }
-     * </pre>
-     */
-    T getOperation(OperationRegistry reg,ObjectNode operationNode);
+public class ValueOperationFactory implements ScriptOperationFactory<ValueOperation> {
+
+    public static final String NAMES[]={ValueOperation.NAME};
+
+    @Override
+    public String[] operationNames() {
+        return NAMES;
+    }
+    
+    @Override
+    public ValueOperation getOperation(OperationRegistry reg,ObjectNode node) {
+        return new ValueOperation(Value.toValue(node.get(ValueOperation.NAME)));
+    }
 }

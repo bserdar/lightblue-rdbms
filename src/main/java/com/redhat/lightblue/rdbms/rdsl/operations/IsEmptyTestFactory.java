@@ -16,32 +16,25 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/**
- * Interface that generates script operation instances from Json
- * nodes. A script operation factory can generate multiple operations.
- */
-public interface ScriptOperationFactory<T extends ScriptOperation> {
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperationFactory;
+import com.redhat.lightblue.rdbms.rdsl.OperationRegistry;
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
 
-    /**
-     * Returns the names of the operations this factory can generate
-     */
-    String[] operationNames();
+public class IsEmptyTestFactory implements ScriptOperationFactory<IsEmptyTest> {
 
-    /**
-     * Returns a script operation instance using the given Json node
-     * operation configuration. The operationNode is the object node
-     * of the form:
-     * <pre>
-     *   { "operationName" : { args } }
-     * </pre>
-     * or
-     * <pre>
-     *   { "operationName" : arg }
-     * </pre>
-     */
-    T getOperation(OperationRegistry reg,ObjectNode operationNode);
+    public static final String[] NAMES={IsEmptyTest.NAME};
+
+    @Override
+    public String[] operationNames() {
+        return NAMES;
+    }
+
+    @Override
+    public IsEmptyTest getOperation(OperationRegistry reg,ObjectNode node) {
+        return new IsEmptyTest(ConditionalTest.parseVarOrScript(reg,node,IsEmptyTest.NAME));
+    }
 }

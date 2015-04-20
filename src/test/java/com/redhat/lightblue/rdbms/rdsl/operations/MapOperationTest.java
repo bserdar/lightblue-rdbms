@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -33,6 +33,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.*;
 
 import com.redhat.lightblue.rdbms.tables.Table;
 import com.redhat.lightblue.rdbms.tables.PrimaryKey;
@@ -94,8 +96,8 @@ public class MapOperationTest {
 
     @Test
     public void parseTest() throws Exception {        
-        MapOperation n=(MapOperation)MapOperation.FACTORY.
-            getOperation(null,TestUtil.json("{'$map' : { 'dest':'$tables.testtable', 'source': '$document.var' } }"));
+        MapOperation n=(MapOperation)new OperationRegistry().
+            get(TestUtil.json("{'$map' : { 'dest':'$tables.testtable', 'source': '$document.var' } }"));
         
         Assert.assertEquals(new Path("$tables.testtable"),n.getDest());
         Assert.assertEquals(new Path("$document.var"),n.getSource());

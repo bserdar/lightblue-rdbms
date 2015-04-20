@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.sql.PreparedStatement;
 import java.sql.CallableStatement;
@@ -31,44 +31,19 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Error;
 
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.ScriptErrors;
+import com.redhat.lightblue.rdbms.rdsl.ResultSetAdapter;
+import com.redhat.lightblue.rdbms.rdsl.Bindings;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
+
 public class ExecuteSqlClauseOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ExecuteSqlClauseOperation.class);
 
     public static final String NAMEQ="sql";
     public static final String NAMECALL="sqlcall";
-    public static final String NAMES[]={NAMEQ,NAMECALL};
-
-    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {     
-            @Override
-            public String[] operationNames() {
-                return NAMES;
-            }
-            
-            @Override
-            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-                ExecuteSqlClauseOperation op;
-                ObjectNode argNode=(ObjectNode)node.get(NAMEQ);
-                if(argNode==null) {
-                    argNode=(ObjectNode)node.get(NAMECALL);
-                    op=new ExecuteSqlClauseOperation(NAMECALL);
-                } else {
-                    op=new ExecuteSqlClauseOperation(NAMEQ);
-                }
-                
-                JsonNode x=argNode.get("clause");
-                if(x==null)
-                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"clause");
-                op.clause=x.asText();
-                
-                x=argNode.get("bindings");
-                if(x instanceof ArrayNode) {
-                    op.bindings=Bindings.parseBindings( (ArrayNode)x); 
-                } else if(x!=null)
-                    throw Error.get(ScriptErrors.ERR_MALFORMED_OPERATION,x.toString());
-                return op;
-            }
-        };
 
     private final String name;
     private String clause;

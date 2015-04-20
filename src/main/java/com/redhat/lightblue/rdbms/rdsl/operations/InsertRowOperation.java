@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.util.Iterator;
 
@@ -25,12 +25,14 @@ import java.sql.PreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ValueType;
+import com.redhat.lightblue.rdbms.rdsl.ScriptErrors;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
 
 import com.redhat.lightblue.rdbms.tables.Table;
 import com.redhat.lightblue.rdbms.tables.Column;
@@ -46,25 +48,6 @@ public class InsertRowOperation implements ScriptOperation {
     private static final Logger LOGGER=LoggerFactory.getLogger(InsertRowOperation.class);
 
     public static final String NAME="insert-row";
-    public static final String NAMES[]={NAME};
-
-    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
-        
-            @Override
-            public String[] operationNames() {
-                return NAMES;
-            }
-            
-            @Override
-            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-                ObjectNode argNode=(ObjectNode)node.get(NAME);
-                JsonNode x=argNode.get("table");
-                if(x==null)
-                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"table");
-                Path table=new Path(x.asText());
-                return new InsertRowOperation(table);
-            }
-        };
 
     private Path tableName;
     

@@ -16,26 +16,40 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
-public class ApplyBindingOperation implements ScriptOperation, ScriptOperationFactory {
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Bindings;
+import com.redhat.lightblue.rdbms.rdsl.Binding;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ListValue;
+import com.redhat.lightblue.rdbms.rdsl.ValueType;
+import com.redhat.lightblue.rdbms.rdsl.ScriptErrors;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
+
+/**
+ * Applies bindings to a row
+ * <pre>
+ *   { apply-binding : { row: var, bindings: [ binding,... ] } }
+ * </pre>
+ *
+ * 'var' is a list containing the column values. The bindings are OUT
+ * bindings. Values of columns are set to the variables in the
+ * bindings.
+ */
+public class ApplyBindingOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ApplyBindingOperation.class);
 
     public static final String NAME="apply-binding";
-    public static final String NAMES[]={NAME};
 
     private Path row;
     private Bindings bindings;
@@ -43,6 +57,14 @@ public class ApplyBindingOperation implements ScriptOperation, ScriptOperationFa
     public ApplyBindingOperation(Path row,Bindings bindings) {
         this.row=row;
         this.bindings=bindings;
+    }
+
+    public Path getRow() {
+        return row;
+    }
+
+    public Bindings getBindings() {
+        return bindings;
     }
 
     @Override
@@ -72,28 +94,5 @@ public class ApplyBindingOperation implements ScriptOperation, ScriptOperationFa
             throw Error.get(ScriptErrors.ERR_MALFORMED_OPERATION,row.toString());
         LOGGER.debug("end processing {}",row);
         return Value.NULL_VALUE;
-    }
-        
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        ObjectNode argNode=(ObjectNode)node.get(NAME);
-        Path row;
-        JsonNode x=argNode.get("row");
-        if(x==null)
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"row");
-        row=new Path(x.asText());
-
-        Bindings bindings;
-        x=argNode.get("bindings");
-        if(x instanceof ArrayNode) {
-            bindings=Bindings.parseBindings( (ArrayNode)x); 
-        } else 
-            throw Error.get(ScriptErrors.ERR_MALFORMED_OPERATION,x.toString());
-        return new ApplyBindingOperation(row,bindings);
     }
 }

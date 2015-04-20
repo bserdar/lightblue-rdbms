@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.OperationRegistry;
+import com.redhat.lightblue.rdbms.rdsl.ScriptErrors;
+import com.redhat.lightblue.rdbms.rdsl.Script;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
+
 /**
  * Abstract base class for conditonal tests. Override the class, and
  * implement executeTest.
  */
-public abstract class ConditionalTest implements ScriptOperation, ScriptOperationFactory {
+public abstract class ConditionalTest implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ConditionalTest.class);
 
@@ -44,11 +51,6 @@ public abstract class ConditionalTest implements ScriptOperation, ScriptOperatio
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String[] operationNames() {
-        return new String[] {name};
     }
 
     @Override

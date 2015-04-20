@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
@@ -35,6 +35,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.*;
 
 import com.redhat.lightblue.rdbms.dialect.OracleDialect;
 
@@ -106,8 +108,8 @@ public class InsertOperationTest {
 
     @Test
     public void parseTest() throws Exception {
-        InsertRowOperation i=(InsertRowOperation)InsertRowOperation.FACTORY.
-            getOperation(null,TestUtil.json("{'insert-row' : { 'table':'$tables.testtable' } }"));
+        InsertRowOperation i=(InsertRowOperation)new OperationRegistry().
+            get(TestUtil.json("{'insert-row' : { 'table':'$tables.testtable' } }"));
         Assert.assertEquals(new Path("$tables.testtable"),i.getTableName());
     }
 }

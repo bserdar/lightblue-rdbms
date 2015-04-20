@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 
+import com.redhat.lightblue.rdbms.rdsl.operations.*;
+
 public class OperationRegistry {
 
     private final Map<String,ScriptOperationFactory> map=new HashMap<>();
@@ -34,12 +36,17 @@ public class OperationRegistry {
      * Constructs the registry with all known operations
      */
     public OperationRegistry() {
-        add(ExecuteSqlClauseOperation.FACTORY);
-        add(ForEachOperation.FACTORY);
-        add(InsertRowOperation.FACTORY);
-        add(MapOperation.FACTORY);
-        add(NullOperation.FACTORY);
-        add(SetOperation.FACTORY);
+        add(new ApplyBindingOperationFactory());
+        add(new ConditionalOperationFactory());
+        add(new ExecuteSqlClauseOperationFactory());
+        add(new ForEachOperationFactory());
+        add(new InsertRowOperationFactory());
+        add(new IsEmptyTestFactory());
+        add(new MapOperationFactory());
+        add(new NullOperationFactory());
+        add(new SetOperationFactory());
+        add(new ValueOperationFactory());
+        add(new VariableAccessOperationFactory());
     }
 
     /**

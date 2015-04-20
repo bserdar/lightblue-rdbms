@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -33,6 +33,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.*;
 
 import com.redhat.lightblue.rdbms.tables.Table;
 import com.redhat.lightblue.rdbms.tables.PrimaryKey;
@@ -97,14 +99,14 @@ public class SetOperationTest {
     @Test
     public void parseTest() throws Exception {
         
-        SetOperation s=(SetOperation)SetOperation.FACTORY.
-            getOperation(null,TestUtil.json("{'$set' : { 'dest':'$tables.testtable', 'var':'$document.var' } }"));
+        SetOperation s=(SetOperation)new OperationRegistry().
+            get(TestUtil.json("{'$set' : { 'dest':'$tables.testtable', 'var':'$document.var' } }"));
         
         Assert.assertEquals(new Path("$tables.testtable"),s.getLVariable());
         Assert.assertEquals(new Path("$document.var"),s.getRVariable());
         
-        s=(SetOperation)SetOperation.FACTORY.
-            getOperation(null,TestUtil.json("{'$set' : { 'dest':'$tables.testtable', 'value':true } }"));
+        s=(SetOperation)new OperationRegistry().
+            get(TestUtil.json("{'$set' : { 'dest':'$tables.testtable', 'value':true } }"));
         Assert.assertEquals(new Path("$tables.testtable"),s.getLVariable());
         Assert.assertTrue((Boolean)s.getRValue().getValue());
     }

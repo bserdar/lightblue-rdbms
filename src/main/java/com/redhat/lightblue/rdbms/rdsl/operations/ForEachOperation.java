@@ -16,18 +16,22 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ValueType;
+import com.redhat.lightblue.rdbms.rdsl.ListValue;
+import com.redhat.lightblue.rdbms.rdsl.ScriptErrors;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
 
 /**
  * Iterates over a list
@@ -44,35 +48,6 @@ public class ForEachOperation implements ScriptOperation {
     private static final Logger LOGGER=LoggerFactory.getLogger(ForEachOperation.class);
 
     public static final String NAME="$foreach";
-    public static final String NAMES[]={NAME};
-
-    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
-            @Override
-            public String[] operationNames() {
-                return NAMES;
-            }
-            
-            @Override
-            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-                ForEachOperation newOp=new ForEachOperation();
-                ObjectNode args=(ObjectNode)node.get(NAME);
-                JsonNode x=args.get("var");
-                if(x!=null) {
-                    newOp.var=new Path(x.asText());
-                } else {
-                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var");
-                }
-                x=args.get("elem");
-                if(x!=null) {
-                    newOp.elemVar=new Path(x.asText());
-                } 
-                x=args.get("do");
-                if(x!=null) {
-                    newOp.doit=Script.parse(reg,x);
-                }
-                return newOp;
-            }
-        };
 
     private Path var;
     private Path elemVar;
@@ -82,7 +57,7 @@ public class ForEachOperation implements ScriptOperation {
 
     public ForEachOperation(Path var,
                             Path elemVar,
-                            Script doit) {
+                            ScriptOperation doit) {
         this.var=var;
         this.elemVar=elemVar;
         this.doit=doit;

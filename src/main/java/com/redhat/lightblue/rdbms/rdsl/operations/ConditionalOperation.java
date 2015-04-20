@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.util.Iterator;
 
@@ -29,12 +29,27 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
-public class ConditionalOperation implements ScriptOperation, ScriptOperationFactory {
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ValueType;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
+import com.redhat.lightblue.rdbms.rdsl.ScriptErrors;
+
+/**
+ * Performs a conditional operation
+ * <pre>
+ *   { $conditional: { test: testScript, then: trueScript, else: falseScript } }
+ * </pre>
+ *
+ * Evaluates testScript. If that evaluates to true, runs trueScript,
+ * otherwise, runs the flaseScript. Both 'then' and 'else' are
+ * optional.
+ */
+public class ConditionalOperation implements ScriptOperation {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ConditionalOperation.class);
 
     public static final String NAME="$conditional";
-    public static final String NAMES[]={NAME};
 
     private ScriptOperation test;
     private ScriptOperation trueScript;
@@ -53,6 +68,18 @@ public class ConditionalOperation implements ScriptOperation, ScriptOperationFac
     @Override
     public String getName() {
         return NAME;
+    }
+
+    public ScriptOperation getTest() {
+        return test;
+    }
+
+    public ScriptOperation getTrueScript() {
+        return trueScript;
+    }
+
+    public ScriptOperation getFalseScript() {
+        return falseScript;
     }
 
     @Override
@@ -76,35 +103,5 @@ public class ConditionalOperation implements ScriptOperation, ScriptOperationFac
             throw Error.get(ScriptErrors.ERR_BOOLEAN_REQUIRED,val.toString());
         LOGGER.debug("conditional:{}",val);
         return val;
-    }
-
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        ConditionalOperation newOp=new ConditionalOperation();
-        ObjectNode args=(ObjectNode)node.get(NAME);
-        JsonNode x=args.get("test");
-        if(x!=null) {
-            if(x instanceof ObjectNode) {
-                test=reg.get( (ObjectNode)x );
-            } else
-                throw Error.get(ScriptErrors.ERR_INVALID_TEST,x.asText());
-            newOp.test=Script.parse(reg,x);
-        } else {
-            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"test");
-        }
-        x=args.get("then");
-        if(x!=null) {
-            newOp.trueScript=Script.parse(reg,x);
-        } 
-        x=args.get("else");
-        if(x!=null) {
-            newOp.falseScript=Script.parse(reg,x);
-        }
-        return newOp;
     }
 }

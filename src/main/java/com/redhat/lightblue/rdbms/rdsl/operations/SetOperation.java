@@ -16,13 +16,15 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
+import com.redhat.lightblue.rdbms.rdsl.Script;
 
 /**
  * Set the value of lvar using current value of rvar, or the result of the script, or the value
@@ -35,45 +37,6 @@ import com.redhat.lightblue.util.Error;
 public class SetOperation implements ScriptOperation {
 
     public static final String NAME="$set";
-    public static final String NAMES[]={NAME};
-
-    /**
-     * Parses $set operation instances
-     */
-    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
-            @Override
-            public String[] operationNames() {
-                return NAMES;
-            }
-            
-            @Override
-            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-                SetOperation newOp=new SetOperation();
-                ObjectNode configNode=(ObjectNode)node.get(NAME);
-                JsonNode x=configNode.get("dest");
-                if(x!=null)
-                    newOp.setLVariable(new Path(x.asText()));
-                else
-                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
-                x=configNode.get("var");
-                if(x!=null) {
-                    newOp.setRVariable(new Path(x.asText()));
-                } else {
-                    x=configNode.get("value");
-                    if(x!=null) {
-                        newOp.setRValue(Value.toValue(x));
-                    } else {
-                        x=configNode.get("valueOf");
-                        if(x!=null) {
-                            newOp.rScript=Script.parse(reg,x);
-                        } else {
-                            throw Error.get(ScriptErrors.ERR_MISSING_ARG,"var/value/valueOf");
-                        }
-                    }
-                }
-                return newOp;
-            }
-        };
     
     private Path lVariable;
 

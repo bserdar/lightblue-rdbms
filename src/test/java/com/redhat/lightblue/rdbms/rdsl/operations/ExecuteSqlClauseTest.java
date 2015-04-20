@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
@@ -35,6 +35,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.*;
 
 import com.redhat.lightblue.rdbms.dialect.OracleDialect;
 
@@ -168,9 +170,8 @@ public class ExecuteSqlClauseTest {
 
     @Test
     public void parseTest() throws Exception {
-        ExecuteSqlClauseOperation e=(ExecuteSqlClauseOperation)ExecuteSqlClauseOperation.FACTORY.
-            getOperation(null,
-                         TestUtil.json("{'sql': { 'clause':'select', 'bindings':['$document.field3',{'value':true},{'var':'somevar','dir':'out'}]}}"));
+        ExecuteSqlClauseOperation e=(ExecuteSqlClauseOperation)new OperationRegistry().
+            get(TestUtil.json("{'sql': { 'clause':'select', 'bindings':['$document.field3',{'value':true},{'var':'somevar','dir':'out'}]}}"));
         
         Assert.assertEquals("select",e.getClause());
         Bindings bindings=e.getBindings();

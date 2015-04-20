@@ -16,11 +16,15 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
 
 /**
  * This is an operation of the foem
@@ -32,10 +36,9 @@ import com.redhat.lightblue.util.Path;
  * This class is mainly useful where grammar requires a script, but the
  * situation demands passing a value instead,
  */
-public class ValueOperation implements ScriptOperation, ScriptOperationFactory {
+public class ValueOperation implements ScriptOperation {
 
     public static final String NAME="value";
-    public static final String NAMES[]={NAME};
     
     private Value value;
 
@@ -43,6 +46,10 @@ public class ValueOperation implements ScriptOperation, ScriptOperationFactory {
 
     public ValueOperation(Value value) {
         this.value=value;
+    }
+
+    public Value getValue() {
+        return value;
     }
 
     @Override
@@ -53,15 +60,5 @@ public class ValueOperation implements ScriptOperation, ScriptOperationFactory {
     @Override
     public Value execute(ScriptExecutionContext ctx) {
         return value;
-    }
-    
-    @Override
-    public String[] operationNames() {
-        return NAMES;
-    }
-
-    @Override
-    public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-        return new ValueOperation(Value.toValue(node.get(NAME)));
     }
 }

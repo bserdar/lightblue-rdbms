@@ -16,16 +16,18 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rdbms.rdsl;
+package com.redhat.lightblue.rdbms.rdsl.operations;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+
+import com.redhat.lightblue.rdbms.rdsl.ScriptOperation;
+import com.redhat.lightblue.rdbms.rdsl.ScriptExecutionContext;
+import com.redhat.lightblue.rdbms.rdsl.Value;
+import com.redhat.lightblue.rdbms.rdsl.ValueType;
 
 import com.redhat.lightblue.rdbms.tables.Table;
 
@@ -43,28 +45,7 @@ public class NullOperation implements ScriptOperation {
     private static final Logger LOGGER=LoggerFactory.getLogger(NullOperation.class);
 
     public static final String NAME="$null";
-    public static final String NAMES[]={NAME};
 
-    public static final ScriptOperationFactory FACTORY=new ScriptOperationFactory() {
-            @Override
-            public String[] operationNames() {
-                return NAMES;
-            }
-            
-            @Override
-            public ScriptOperation getOperation(OperationRegistry reg,ObjectNode node) {
-                NullOperation newOp=new NullOperation();
-                ObjectNode args=(ObjectNode)node.get(NAME);
-                JsonNode x=args.get("dest");
-                if(x!=null) {
-                    newOp.dest=new Path(x.asText());
-                } else {
-                    throw Error.get(ScriptErrors.ERR_MISSING_ARG,"dest");
-                }
-                return newOp;
-            }
-        };
-    
     private Path dest;
 
     public NullOperation() {}
