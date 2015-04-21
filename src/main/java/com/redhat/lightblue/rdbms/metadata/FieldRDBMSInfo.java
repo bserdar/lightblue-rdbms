@@ -20,6 +20,8 @@ package com.redhat.lightblue.rdbms.metadata;
 
 import java.io.Serializable;
 
+import com.redhat.lightblue.rdbms.tables.Table;
+
 /**
  * This structure represents the RDBMS mappings for a field in
  * metadata. This is how you get the RDBMS info for a field:
@@ -40,8 +42,8 @@ public class FieldRDBMSInfo implements Serializable {
 
     public FieldRDBMSInfo(String tableName,
                           String columnName) {
-        this.tableName=tableName;
-        this.columnName=columnName;
+        setTableName(tableName);
+        setColumnName(columnName);
     }
 
     public  String getTableName() {
@@ -49,7 +51,7 @@ public class FieldRDBMSInfo implements Serializable {
     }
 
     public void setTableName(String s) {
-        tableName=s;
+        tableName=Table.clean(s);
     }
 
     public String getColumnName() {
@@ -57,7 +59,7 @@ public class FieldRDBMSInfo implements Serializable {
     }
     
     public void setColumnName(String s) {
-        columnName=s;
+        columnName=Table.clean(s);
     }
 
 }

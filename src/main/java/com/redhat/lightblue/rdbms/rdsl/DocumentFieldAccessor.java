@@ -63,6 +63,10 @@ public class DocumentFieldAccessor implements VariableAccessor {
         this.md=md;
     }
 
+    public EntityMetadata getMetadata() {
+        return md;
+    }
+
     /**
      * Utility function that returns a value for a document node using
      * its metadata. The metadata is used to return a Value object

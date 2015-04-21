@@ -68,5 +68,10 @@ public interface Dialect {
      * Writes an INSERT statement for the given table and columns
      */
     String getInsertRowStmt(Table table,Column[] columns);
+
+    /**
+     * Writes an UPDATE statement that updates the given columns using the given where clause
+     */
+    String getUpdateRowStmt(Table table,Column[] updateColumns,String whereClause);
 }
 

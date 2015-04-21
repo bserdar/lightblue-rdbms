@@ -83,6 +83,7 @@ public final class ScriptErrors {
     public static final String ERR_JDBC_ERROR="rdbms:script:jdbc-error";
     public static final String ERR_NOT_A_TABLE="rdbms:script:not-a-table";
     public static final String ERR_ALL_COLS_NULL="rdbms:script:all-table-columns-are-null";
+    public static final String ERR_TABLE_HAS_NO_PKEY="rdbms:script:table-has-no-primary-key";
 
     private ScriptErrors() {}
 }

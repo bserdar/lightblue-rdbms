@@ -91,6 +91,7 @@ public class InsertRowOperation implements ScriptOperation {
             LOGGER.debug("Executing insert statement");
             int result=stmt.executeUpdate();
             LOGGER.debug("Result: {}",result);
+            stmt.close();
             return new Value(result);
         } catch (Error e) {
             throw e;

@@ -74,8 +74,19 @@ public class Bindings {
      * Sets all the IN and INOUT binding values to the prepared statement
      */
     public void setParameters(ScriptExecutionContext ctx,PreparedStatement stmt) {
+        setParameters(1,ctx,stmt);
+    }
+
+    /**
+     * Sets the IN and INOUT bindings of the prepared statement, starting from the given parameter index
+     * 
+     * @param firstIndex the first parameter index to bind, starting with 1
+     * @param ctx The execution context
+     * @param stmt The statement
+     */
+    public void setParameters(int firstIndex,ScriptExecutionContext ctx,PreparedStatement stmt) {
         // Do all the IN bindings first
-        int index=1;
+        int index=firstIndex;
         for(Binding b:bindings) {
             if(b.getDir()==Binding.Dir.IN||
                b.getDir()==Binding.Dir.INOUT) {

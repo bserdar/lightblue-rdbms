@@ -101,7 +101,7 @@ public class ExecutionContextTest {
     @Test
     public void deleteSanityCheck() throws Exception {
         EntityMetadata md=TestUtil.getMd("testMetadata.json");
-        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),JsonNodeFactory.instance.textNode("id"),null);
+        ScriptExecutionContext ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),md,JsonNodeFactory.instance.textNode("id"),null);
         System.out.println(ctx);
         Value v=ctx.getVarValue(new Path("$docId"));
         Assert.assertEquals(ValueType.primitive,v.getType());
@@ -111,7 +111,7 @@ public class ExecutionContextTest {
         node.set("id1",JsonNodeFactory.instance.textNode("id1"));
         node.set("id2",JsonNodeFactory.instance.numberNode(1));
 
-        ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),node,null);
+        ctx=ScriptExecutionContext.getInstanceForDeletion(TestUtil.getTables(md),md,node,null);
         System.out.println(ctx);
         v=ctx.getVarValue(new Path("$docId"));
         Assert.assertEquals(ValueType.map,v.getType());

@@ -38,6 +38,9 @@ import java.util.Calendar;
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.rdbms.rdsl.Value;
@@ -47,6 +50,8 @@ import com.redhat.lightblue.rdbms.tables.Table;
 import com.redhat.lightblue.rdbms.tables.Column;
 
 public abstract class AbstractDialect implements Dialect {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(AbstractDialect.class);
 
     private static final class JDBCSqlTypeMap {
         final String name;
@@ -116,7 +121,7 @@ public abstract class AbstractDialect implements Dialect {
                     stmt.setObject(index,null);
                 else
                     stmt.setNull(index,sqlType);
-            } if(sqlType!=null) {
+            } else if(sqlType!=null) {
                 stmt.setObject(index,value,sqlType);
             } else if (value instanceof BigDecimal) {
                 stmt.setBigDecimal(index,(BigDecimal)value);
@@ -162,6 +167,7 @@ public abstract class AbstractDialect implements Dialect {
         } catch (Error e) {
             throw e;
         } catch (Exception x) {
+            LOGGER.error("error in setParameter",x);
             throw Error.get(DialectErrors.ERR_CANNOT_BIND,x.toString());
         }        
     }
@@ -179,6 +185,7 @@ public abstract class AbstractDialect implements Dialect {
         try {
             stmt.registerOutParameter(index,sqlType);
         } catch (Exception e) {
+            LOGGER.error("error in registerOutParameter",e);
             throw Error.get(DialectErrors.ERR_CANNOT_REGISTER_OUT_PARAM,Integer.toString(sqlType));
         }
     }
@@ -241,6 +248,7 @@ public abstract class AbstractDialect implements Dialect {
         } catch (Error e) {
             throw e;
         } catch (Exception x) {
+            LOGGER.error("error in getOutValue",x);
             throw Error.get(DialectErrors.ERR_CANNOT_BIND,x.toString());
         }
         throw Error.get(DialectErrors.ERR_UNSUPPORTED_TYPE,Integer.toString(sqlType));
@@ -306,6 +314,7 @@ public abstract class AbstractDialect implements Dialect {
         } catch (Error e) {
             throw e;
         } catch (Exception x) {
+            LOGGER.error("error in getResultSetValue",x);
             throw Error.get(DialectErrors.ERR_CANNOT_BIND,x.toString());
         }
         throw Error.get(DialectErrors.ERR_UNSUPPORTED_TYPE,Integer.toString(sqlType));
@@ -336,6 +345,23 @@ public abstract class AbstractDialect implements Dialect {
         return bld.toString();
     }
     
+    @Override
+    public String getUpdateRowStmt(Table table,Column[] updateColumns,String whereClause) {
+        StringBuilder bld=new StringBuilder(256);
+        bld.append("update ").append(table.getName()).append(" set ");
+        boolean first=true;
+        for(Column col:updateColumns) {
+            if(first)
+                first=false;
+            else
+                bld.append(',');
+            bld.append(col.getName()).append('=').append(col.getWriteFilter());
+        }
+        if(whereClause!=null) {
+            bld.append(" where ").append(whereClause);
+        }
+        return bld.toString();
+    }
 
     /**
      * Parses a JDBC sql type from string

@@ -52,12 +52,16 @@ public class ScriptExecutionContext implements VariableAccessor {
     private final ScriptOperationFactory opFactory;
     private Dialect dialect;
     private Connection connection;
+    private final EntityMetadata md;
 
     /**
      * Constructs the top-level execution context
      */
-    public ScriptExecutionContext(ScriptOperationFactory factory) {
-        this(null,factory);
+    public ScriptExecutionContext(ScriptOperationFactory factory,EntityMetadata md) {
+        this.scope=new TopLevelVariableAccessor();
+        this.parent=null;
+        this.opFactory=factory;       
+        this.md=md;
     }
 
     /**
@@ -68,10 +72,9 @@ public class ScriptExecutionContext implements VariableAccessor {
         scope=new TopLevelVariableAccessor();
         this.parent=parentScope;       
         this.opFactory=factory;
-        if(parentScope!=null) {
-            this.dialect=parentScope.dialect;
-            this.connection=parentScope.connection;
-        }
+        this.dialect=parentScope.dialect;
+        this.connection=parentScope.connection;
+        this.md=parentScope.md;
     }
 
     public ScriptOperationFactory getOperationFactory() {
@@ -92,6 +95,10 @@ public class ScriptExecutionContext implements VariableAccessor {
 
     public void setConnection(Connection c) {
         connection=c;
+    }
+
+    public EntityMetadata getMetadata() {
+        return md;
     }
 
     /**
@@ -204,7 +211,7 @@ public class ScriptExecutionContext implements VariableAccessor {
                                                                  JsonDoc document,
                                                                  EntityMetadata md,
                                                                  ScriptOperationFactory opFactory) {
-        ScriptExecutionContext ctx=new ScriptExecutionContext(opFactory);
+        ScriptExecutionContext ctx=new ScriptExecutionContext(opFactory,md);
         ((TopLevelVariableAccessor)ctx.scope).set("$tables",new TablesAccessor(tables));
         ((TopLevelVariableAccessor)ctx.scope).set("$document",new DocumentFieldAccessor(md,document));
         return ctx;
@@ -218,7 +225,7 @@ public class ScriptExecutionContext implements VariableAccessor {
                                                               JsonDoc newDoc,
                                                               EntityMetadata md,
                                                               ScriptOperationFactory opFactory) {
-        ScriptExecutionContext ctx=new ScriptExecutionContext(opFactory);
+        ScriptExecutionContext ctx=new ScriptExecutionContext(opFactory,md);
         ((TopLevelVariableAccessor)ctx.scope).set("$tables",new TablesAccessor(tables));
         ((TopLevelVariableAccessor)ctx.scope).set("$document",new DocumentFieldAccessor(md,newDoc));
         ((TopLevelVariableAccessor)ctx.scope).set("$olddocument",new DocumentFieldAccessor(md,oldDoc));
@@ -229,9 +236,10 @@ public class ScriptExecutionContext implements VariableAccessor {
      * Creates an execution context for deletion. Defines $tables and $docId variables.
      */
     public static ScriptExecutionContext getInstanceForDeletion(Map<String,Table> tables,
+                                                                EntityMetadata md,
                                                                 JsonNode docId,
                                                                 ScriptOperationFactory opFactory) {
-        ScriptExecutionContext ctx=new ScriptExecutionContext(opFactory);
+        ScriptExecutionContext ctx=new ScriptExecutionContext(opFactory,md);
         ((TopLevelVariableAccessor)ctx.scope).set("$tables",new TablesAccessor(tables));
         if(docId instanceof ObjectNode) {
             ((TopLevelVariableAccessor)ctx.scope).set("$docId",new TempVariableAccessor(new Value(new TempVarMapValueAdapter(new JsonObjectAdapter( (ObjectNode)docId,null )))));

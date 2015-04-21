@@ -45,6 +45,7 @@ public class OperationRegistry {
         add(new MapOperationFactory());
         add(new NullOperationFactory());
         add(new SetOperationFactory());
+        add(new UpdateRowOperationFactory());
         add(new ValueOperationFactory());
         add(new VariableAccessOperationFactory());
     }
